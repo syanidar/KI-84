@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jp.gr.java_conf.syanidar.reversi.ffotester.FFOTesterController">
+   <children>
+      <MenuBar prefHeight="26.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#onLoadClicked" text="Load" />
+                  <MenuItem mnemonicParsing="false" onAction="#onSaveClicked" text="Save" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+                  <MenuItem mnemonicParsing="false" onAction="#onStartClicked" text="Start" />
+              <MenuItem mnemonicParsing="false" onAction="#onClearClicked" text="Clear" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <TextArea fx:id="log" layoutX="11.0" layoutY="36.0" prefHeight="350.0" prefWidth="578.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="11.0" AnchorPane.rightAnchor="11.0" AnchorPane.topAnchor="36.0" />
+   </children>
+</AnchorPane>

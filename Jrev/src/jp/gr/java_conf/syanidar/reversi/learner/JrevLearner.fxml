@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="75.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jp.gr.java_conf.syanidar.reversi.learner.JrevLearnerController">
+   <children>
+      <Label fx:id="message" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="300.0" text="Put the number of iteration into the field below." wrapText="true" />
+      <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="300.0">
+         <children>
+            <TextField fx:id="textField" prefHeight="25.0" prefWidth="170.0" />
+            <Button mnemonicParsing="false" onAction="#onLoadButtonClicked" text="Load" />
+            <Button fx:id="startButton" mnemonicParsing="false" onAction="#onStartButtonClicked" text="Start" />
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </HBox>
+      <Separator prefWidth="300.0" />
+      <HBox alignment="CENTER" prefHeight="25.0" prefWidth="300.0">
+         <children>
+            <ProgressBar fx:id="progressBar" minHeight="-Infinity" minWidth="-Infinity" prefHeight="15.0" prefWidth="180.0" progress="0.0" />
+            <Label fx:id="progressIndicator" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="80.0" />
+         </children>
+      </HBox>
+   </children>
+</VBox>

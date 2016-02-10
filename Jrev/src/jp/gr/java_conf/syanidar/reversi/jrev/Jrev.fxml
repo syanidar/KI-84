@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="440.0" prefWidth="540.0" style="-fx-background-color: #cccccc;" stylesheets="@Jrev.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jp.gr.java_conf.syanidar.reversi.jrev.JrevController">
+   <children>
+      <MenuBar maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="540.0">
+         <menus>
+            <Menu mnemonicParsing="false" text="File">
+              <items>
+                  <MenuItem mnemonicParsing="false" onAction="#onSavePositionClicked" text="Save Positoin" />
+                <MenuItem mnemonicParsing="false" onAction="#onLoadPositionClicked" text="Load Position" />
+                  <MenuItem mnemonicParsing="false" onAction="#onSaveLogClicked" text="Save Log" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Black">
+               <items>
+                  <RadioMenuItem fx:id="humanBlack" mnemonicParsing="false" selected="true" text="Human">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="black" />
+                     </toggleGroup>
+                  </RadioMenuItem>
+                  <RadioMenuItem fx:id="pvsBlack" mnemonicParsing="false" text="PVS" toggleGroup="$black" />
+                  <RadioMenuItem fx:id="mtdfBlack" mnemonicParsing="false" text="MTD(f)" toggleGroup="$black" />
+                  <RadioMenuItem fx:id="negaAlphaBlack" mnemonicParsing="false" text="NegaAlpha" toggleGroup="$black" />
+                  <RadioMenuItem fx:id="monteCarloBlack" mnemonicParsing="false" text="MonteCarlo" toggleGroup="$black" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="White">
+               <items>
+                  <RadioMenuItem fx:id="humanWhite" mnemonicParsing="false" text="Human">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="white" />
+                     </toggleGroup>
+                  </RadioMenuItem>
+                  <RadioMenuItem fx:id="pvsWhite" mnemonicParsing="false" selected="true" text="PVS" toggleGroup="$white" />
+                  <RadioMenuItem fx:id="mtdfWhite" mnemonicParsing="false" text="MTD(f)" toggleGroup="$white" />
+                  <RadioMenuItem fx:id="negaAlphaWhite" mnemonicParsing="false" text="NegaAlpha" toggleGroup="$white" />
+                  <RadioMenuItem fx:id="monteCarloWhite" mnemonicParsing="false" text="MonteCarlo" toggleGroup="$white" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Search depth">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="Opening - Middle Game">
+                     <graphic>
+                        <ComboBox fx:id="depthMiddleField" editable="true" prefWidth="150.0" promptText="9" />
+                     </graphic>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" text="End Game">
+                     <graphic>
+                        <ComboBox fx:id="depthEndField" editable="true" prefWidth="150.0" promptText="18" />
+                     </graphic>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" text="Strength">
+                     <graphic>
+                        <ComboBox fx:id="strengthField" editable="true" prefWidth="150.0" promptText="500000" />
+                     </graphic>
+                  </MenuItem>
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Clock">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Time Control">
+                     <graphic>
+                        <TextField fx:id="timeField" promptText="1000" />
+                     </graphic>
+                  </MenuItem>
+                  <RadioMenuItem fx:id="timeDisableItem" mnemonicParsing="false" selected="true" text="Disable" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Options">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#onLaunchLearnerClicked" text="Launch Learner" />
+                  <MenuItem mnemonicParsing="false" onAction="#onLaunchTesterClicked" text="Launch FFO Tester" />
+              </items>
+            </Menu>
+         </menus>
+      </MenuBar>
+      <ToolBar maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="540.0">
+        <items>
+          <Button blendMode="SRC_ATOP" mnemonicParsing="false" onAction="#onNewGameClicked" text="New Game" />
+            <Button blendMode="SRC_ATOP" mnemonicParsing="false" onAction="#onResumeClicked" text="Resume" />
+            <Separator blendMode="SRC_ATOP" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="30.0" prefWidth="30.0" />
+            <Button blendMode="SRC_ATOP" mnemonicParsing="false" onAction="#onToTheFirstClicked" text="&lt;&lt;" />
+            <Button blendMode="SRC_ATOP" mnemonicParsing="false" onAction="#onUndoClicked" text="&lt;" />
+            <Button blendMode="SRC_ATOP" mnemonicParsing="false" onAction="#onStopClicked" text="| |" />
+            <Button blendMode="SRC_ATOP" mnemonicParsing="false" onAction="#onRedoClicked" text="&gt;" />
+            <Button blendMode="SRC_ATOP" mnemonicParsing="false" onAction="#onToTheLastClicked" text="&gt;&gt;" />
+            <Separator blendMode="SRC_ATOP" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="30.0" prefWidth="30.0" />
+            <Button blendMode="SRC_ATOP" mnemonicParsing="false" onAction="#onClearLogClicked" text="Clear Log" />
+        </items>
+      </ToolBar>
+      <HBox prefHeight="350.0" prefWidth="1053.0">
+         <children>
+            <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="350.0">
+               <children>
+                  <ImageView fitHeight="350.0" fitWidth="350.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@board.png" />
+                     </image>
+                  </ImageView>
+                  <Pane fx:id="boardPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="320.0" prefWidth="320.0" />
+               </children>
+            </StackPane>
+            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="190.0">
+               <children>
+                  <Label fx:id="indicator" alignment="CENTER" blendMode="SRC_ATOP" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="20.0" prefWidth="190.0">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <TextArea fx:id="log" blendMode="SRC_ATOP" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="190.0" />
+                  <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="190.0">
+                     <children>
+                        <ImageView blendMode="SRC_ATOP" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@disc_black.png" />
+                           </image>
+                        </ImageView>
+                        <ProgressBar fx:id="barBlack" blendMode="SRC_ATOP" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="15.0" prefWidth="110.0" progress="0.0" styleClass="progress-bar-black" />
+                        <Label fx:id="labelBlack" alignment="CENTER" blendMode="SRC_ATOP" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="40.0">
+                           <font>
+                              <Font size="27.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="190.0">
+                     <children>
+                        <ImageView blendMode="SRC_ATOP" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@disc_white.png" />
+                           </image>
+                        </ImageView>
+                        <ProgressBar fx:id="barWhite" blendMode="SRC_ATOP" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="15.0" prefWidth="110.0" progress="0.0" styleClass="progress-bar-white" />
+                        <Label fx:id="labelWhite" alignment="CENTER" blendMode="SRC_ATOP" contentDisplay="CENTER" prefHeight="40.0" prefWidth="40.0" textFill="WHITE">
+                           <font>
+                              <Font size="27.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </VBox>
+         </children>
+      </HBox>
+      <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="540.0">
+         <children>
+            <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onCopyButtonClicked" prefHeight="25.0" prefWidth="100.0" text="Copy" />
+            <TextArea fx:id="gameRecord" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="440.0" wrapText="true">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </TextArea>
+         </children>
+      </HBox>
+   </children>
+</VBox>
