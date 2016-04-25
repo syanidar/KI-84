@@ -1,6 +1,5 @@
 package jp.gr.java_conf.syanidar.chess.hamster.game;
 
-import java.util.Random;
 import java.util.function.ToIntFunction;
 
 import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Evaluator;
@@ -11,7 +10,6 @@ import jp.gr.java_conf.syanidar.chess.hamster.materials.Square;
 
 public class HamsterEvaluator implements Evaluator<ChessPosition, CentiPawn> {
 	private static final HamsterEvaluator INSTANCE = new HamsterEvaluator();
-	private static final Random RANDOM = new Random();
 	private HamsterEvaluator(){}
 	
 	@Override
