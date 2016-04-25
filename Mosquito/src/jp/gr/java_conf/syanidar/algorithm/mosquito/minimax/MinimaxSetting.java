@@ -12,4 +12,8 @@ public class MinimaxSetting implements Setting {
 	int depth(){
 		return depth;
 	}
+
+	@Override
+	public void initialize() {		
+	}
 }

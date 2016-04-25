@@ -10,7 +10,7 @@ import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.LookAheadAnalyzer;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Move;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Position;
 
-public class AlphaBetaAnalyzer<P extends Position<?>, E extends Evaluation<E>> implements LookAheadAnalyzer<P, AlphaBetaSetting, E> {
+public class AlphaBetaAnalyzer<P extends Position<?>, E extends Evaluation<E>> implements LookAheadAnalyzer<P, AlphaBetaSetting<E>, E> {
 	private Evaluator<P, E> evaluator;
 	
 	public AlphaBetaAnalyzer(Evaluator<P, E> evaluator){
@@ -18,18 +18,18 @@ public class AlphaBetaAnalyzer<P extends Position<?>, E extends Evaluation<E>> i
 		this.evaluator = evaluator;
 	}
 	@Override
-	public E evaluate(P position, AlphaBetaSetting settings) {
+	public E evaluate(P position, AlphaBetaSetting<E> settings) {
 		if(position == null || settings == null)throw new IllegalArgumentException("null");
 		int depth = settings.depth();
 		
-		return evaluate(position, depth, new Bound<E>(evaluator.lowerBound(), evaluator.upperBound()), null).reverse();
+		return evaluate(position, depth, settings.bound(), null).reverse();
 	}
 	@Override
-	public E evaluate(P position, AlphaBetaSetting settings, List<String> line){
+	public E evaluate(P position, AlphaBetaSetting<E> settings, List<String> line){
 		if(position == null || settings == null || line == null)throw new IllegalArgumentException("null");
 
 		int depth = settings.depth();
-		E result = evaluate(position, depth, new Bound<E>(evaluator.lowerBound(), evaluator.upperBound()), line).reverse();
+		E result = evaluate(position, depth, settings.bound(), line).reverse();
 		Collections.reverse(line);
 		return result;
 	}

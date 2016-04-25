@@ -10,7 +10,7 @@ public class LineUpdater implements Runnable {
 	private final int depth;
 	private final Move move;
 	
-	LineUpdater(List<String> line, List<String> newLine, int depth, Move move){
+	public LineUpdater(List<String> line, List<String> newLine, int depth, Move move){
 		this.line = line;
 		this.newLine = newLine;
 		this.depth = depth;
