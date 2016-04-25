@@ -2,7 +2,7 @@ package jp.gr.java_conf.syanidar.chess.hamster.game;
 
 import jp.gr.java_conf.syanidar.chess.hamster.move.Move;
 
-public class ChessMove implements jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Move {
+public class ChessMove implements jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Move {
 
 	private final Move move;
 	private final ChessPosition cp;

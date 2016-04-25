@@ -1,6 +1,6 @@
 package jp.gr.java_conf.syanidar.algorithm.mosquito.game;
 
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Position;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
 
 public class Game <P extends Position<?>>{
 	private final P position;

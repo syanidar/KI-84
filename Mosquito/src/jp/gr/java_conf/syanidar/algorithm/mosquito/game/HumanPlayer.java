@@ -3,8 +3,8 @@ package jp.gr.java_conf.syanidar.algorithm.mosquito.game;
 import java.util.List;
 import java.util.Optional;
 
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Move;
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Position;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Move;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
 import jp.gr.java_conf.syanidar.utils.collection.ListUtility;
 
 public class HumanPlayer<P extends Position<?>> implements Player<P> {

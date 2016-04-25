@@ -1,6 +1,6 @@
 package jp.gr.java_conf.syanidar.algorithm.mosquito.minimax;
 
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Setting;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Setting;
 
 public class MinimaxSetting implements Setting {
 	private final int depth;

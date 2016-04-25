@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Analyzer;
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Evaluation;
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Evaluator;
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.LookAheadAnalyzer;
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Move;
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Position;
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Setting;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Analyzer;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Evaluation;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Evaluator;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.LookAheadAnalyzer;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Move;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Setting;
 
 public class AIPlayer<P extends Position<?>, E extends Evaluation<E>, S extends Setting> implements Player<P> {
 	private final Analyzer<P, S, E> analyzer;

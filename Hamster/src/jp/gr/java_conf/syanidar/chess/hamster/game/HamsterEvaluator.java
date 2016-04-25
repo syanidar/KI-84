@@ -2,7 +2,7 @@ package jp.gr.java_conf.syanidar.chess.hamster.game;
 
 import java.util.function.ToIntFunction;
 
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Evaluator;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Evaluator;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.Board;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.ColorEnum;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.PieceEnum;

@@ -2,7 +2,7 @@ package jp.gr.java_conf.syanidar.algorithm.mosquito.minimax;
 
 import java.util.List;
 
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Move;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Move;
 
 public class LineUpdater implements Runnable {
 	private final List<String> line;

@@ -1,6 +1,6 @@
 package jp.gr.java_conf.syanidar.chess.hamster.game;
 
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Evaluation;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Evaluation;
 
 public final class CentiPawn implements Evaluation<CentiPawn>{
 	private final int value;

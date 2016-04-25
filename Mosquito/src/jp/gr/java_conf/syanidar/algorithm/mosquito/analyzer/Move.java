@@ -1,4 +1,4 @@
-package jp.gr.java_conf.syanidar.algorithm.mosquito.framework;
+package jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer;
 
 public interface Move {
 	public void play();

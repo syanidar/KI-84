@@ -1,4 +1,4 @@
-package jp.gr.java_conf.syanidar.algorithm.mosquito.framework;
+package jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer;
 
 public interface Evaluation <E extends Evaluation<E>> extends Comparable<E>{
 	public E reverse();

@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jp.gr.java_conf.syanidar.algorithm.mosquito.framework.Position;
 import jp.gr.java_conf.syanidar.chess.hamster.move.*;
 import jp.gr.java_conf.syanidar.chess.hamster.tools.AttackDetector;
 import jp.gr.java_conf.syanidar.utils.collection.ListUtility;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.*;
 
 public class ChessPosition implements Position<ChessMove> {
