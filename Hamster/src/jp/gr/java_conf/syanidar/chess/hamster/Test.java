@@ -27,7 +27,7 @@ public class Test {
 		AIPlayer<ChessPosition, CentiPawn, AlphaBetaSetting<CentiPawn>> ap = new AIPlayer<>(aba, abs, he);
 		HumanPlayer<ChessPosition> hp = new HumanPlayer<>(new ChessMoveSelector());
 		ChessPosition position = new ChessPosition();
-		Game<ChessPosition> game = new Game<>(position, ap, ap, new ChessViewer());
+		Game<ChessPosition> game = new Game<>(position, hp, ap, new ChessViewer());
 		ChessNoMoveHandler ch = new ChessNoMoveHandler();
 		
 		while(!ch.terminated){
