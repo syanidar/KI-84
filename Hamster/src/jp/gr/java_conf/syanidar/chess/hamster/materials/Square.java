@@ -43,7 +43,7 @@ public class Square extends Coordinates{
 	}
 	public Optional<Square> next(DirectionEnum d){
 		assert d != null;
-		Optional<Coordinates> location = d.increment().apply(this);
+		Optional<Coordinates> location = d.increment(this);
 		return location.flatMap(l -> Optional.of(board.squareAt(l)));
 	}
 	@Override

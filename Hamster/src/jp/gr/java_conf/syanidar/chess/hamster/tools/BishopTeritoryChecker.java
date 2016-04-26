@@ -30,8 +30,9 @@ public class BishopTeritoryChecker implements PieceTeritoryChecker {
 			while(next.isPresent()){
 				next = next.filter(n -> !n.equals(c));
 				if(!next.isPresent())return true;
-				next = next.filter(n -> !n.isOccupied());
-				next = next.flatMap(n -> n.next(direction));
+				next = next
+						.filter(n -> !n.isOccupied())
+						.flatMap(n -> n.next(direction));
 			}
 		}
 		return false;

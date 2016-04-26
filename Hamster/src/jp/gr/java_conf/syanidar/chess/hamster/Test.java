@@ -25,16 +25,14 @@ public class Test {
 		AlphaBetaAnalyzer<ChessPosition, CentiPawn> aba = new AlphaBetaAnalyzer<>(he);
 		AlphaBetaSetting<CentiPawn> abs = new AlphaBetaSetting<>(3, he);
 		AIPlayer<ChessPosition, CentiPawn, AlphaBetaSetting<CentiPawn>> ap = new AIPlayer<>(aba, abs, he);
-		HumanPlayer<ChessPosition> hp = new HumanPlayer<>(new ChessMoveSelector());
+//		HumanPlayer<ChessPosition> hp = new HumanPlayer<>(new ChessMoveSelector());
 		ChessPosition position = new ChessPosition();
-		Game<ChessPosition> game = new Game<>(position, hp, ap, new ChessViewer());
+		Game<ChessPosition> game = new Game<>(position, ap, ap, new ChessViewer());
 		ChessNoMoveHandler ch = new ChessNoMoveHandler();
 		
 		while(!ch.terminated){
 			game.play(ch);
-			if(position.theFirstPlayerHasTheMove()){
-				System.out.println(ap.evaluationMap());
-			}
+			System.out.println(ap.evaluationMap());
 		}
 	}
 	private static class ChessNoMoveHandler implements NoMoveHandler<ChessPosition>{

@@ -1,117 +1,36 @@
 package jp.gr.java_conf.syanidar.chess.hamster.materials;
 
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.IntUnaryOperator;
 
 public enum DirectionEnum {
-	NORTH{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r + 1;}
-	},
-	NORTH_NORTH_EAST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c + 1;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r + 2;}
-	},
-	NORTH_EAST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c + 1;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r + 1;}
-	},
-	EAST_NORTH_EAST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c + 2;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r + 1;}
-	},
-	EAST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c + 1;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r;}
-	},
-	EAST_SOUTH_EAST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c + 2;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r - 1;}
-	},
-	SOUTH_EAST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c + 1;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r - 1;}
-	},
-	SOUTH_SOUTH_EAST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c + 1;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r - 2;}
-	},
-	SOUTH{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r - 1;}
-	},
-	SOUTH_SOUTH_WEST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c - 1;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r - 2;}
-	},
-	SOUTH_WEST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c - 1;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r - 1;}
-	},
-	WEST_SOUTH_WEST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c - 2;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r - 1;}
-	},
-	WEST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c - 1;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r;}
-	},
-	WEST_NORTH_WEST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c - 2;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r + 1;}
-	},
-	NORTH_WEST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c - 1;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r + 1;}
-	},
-	NORTH_NORTH_WEST{
-		@Override
-		IntUnaryOperator columnIncrement() {return c -> c - 1;}
-		@Override
-		IntUnaryOperator rowIncrement() {return r -> r + 2;}
-	};
-	abstract IntUnaryOperator columnIncrement();
-	abstract IntUnaryOperator rowIncrement();
-	Function<Coordinates, Optional<Coordinates>> increment(){
-		return c -> {
-			Coordinates result = null;
-			int column = columnIncrement().applyAsInt(c.column());
-			int row = rowIncrement().applyAsInt(c.row());
-			if(0 <= column && column < 8 && 0 <= row && row < 8){
-				result = new Coordinates(column, row);
-			}
-			return Optional.ofNullable(result);
-		};
+	NORTH(0, 1),
+	NORTH_NORTH_EAST(1, 2),
+	NORTH_EAST(1, 1),
+	EAST_NORTH_EAST(2, 1),
+	EAST(1, 0),
+	EAST_SOUTH_EAST(2, -1),
+	SOUTH_EAST(1, -1),
+	SOUTH_SOUTH_EAST(1, -2),
+	SOUTH(0, -1),
+	SOUTH_SOUTH_WEST(-1, -2),
+	SOUTH_WEST(-1, -1),
+	WEST_SOUTH_WEST(-2, -1),
+	WEST(-1, 0),
+	WEST_NORTH_WEST(-2, 1),
+	NORTH_WEST(-1, 1),
+	NORTH_NORTH_WEST(-1, 2);
+	private final int columnIncrement;
+	private final int rowIncrement;
+	
+	private DirectionEnum(int c, int r){
+		columnIncrement = c;
+		rowIncrement = r;
+	}
+	Optional<Coordinates> increment(Coordinates c){
+		int column = c.column() + columnIncrement;
+		if(column < 0 || 8 <= column)return Optional.empty();
+		int row = c.row() + rowIncrement;
+		if(row < 0 || 8 <= row)return Optional.empty();
+		return Optional.of(new Coordinates(column, row));
 	}
 }
