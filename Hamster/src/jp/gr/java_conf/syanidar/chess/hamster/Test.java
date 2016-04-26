@@ -14,6 +14,7 @@ import jp.gr.java_conf.syanidar.algorithm.mosquito.game.NoMoveHandler;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.game.Viewer;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.minimax.AlphaBetaAnalyzer;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.minimax.AlphaBetaSetting;
+
 import jp.gr.java_conf.syanidar.chess.hamster.game.CentiPawn;
 import jp.gr.java_conf.syanidar.chess.hamster.game.ChessPosition;
 import jp.gr.java_conf.syanidar.chess.hamster.game.HamsterEvaluator;

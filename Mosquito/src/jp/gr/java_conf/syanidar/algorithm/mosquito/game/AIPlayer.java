@@ -1,10 +1,10 @@
 package jp.gr.java_conf.syanidar.algorithm.mosquito.game;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Analyzer;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Evaluation;
@@ -20,7 +20,7 @@ public class AIPlayer<P extends Position<?>, E extends Evaluation<E>, S extends 
 	private final S setting;
 	private final Evaluator<P, E> evaluator;
 	
-	private Map<String, E> evaluationMap;
+	private Map<E, String> evaluationMap;
 	
 	public AIPlayer(Analyzer<P, S, E> analyzer, S setting, Evaluator<P, E> evaluator){
 		this.analyzer = analyzer;
@@ -42,7 +42,7 @@ public class AIPlayer<P extends Position<?>, E extends Evaluation<E>, S extends 
 			return Optional.empty();
 		}
 		
-		evaluationMap = new HashMap<>();
+		evaluationMap = new TreeMap<>();
 		Optional<List<String>> line = Optional.ofNullable(laa.isPresent() ? new ArrayList<>() : null);
 		E best = evaluator.lowerBound();
 		Move bestMove = null;
@@ -52,7 +52,7 @@ public class AIPlayer<P extends Position<?>, E extends Evaluation<E>, S extends 
 			E evaluation = laa.isPresent() ? laa.get().evaluate(position, setting, newLine) : analyzer.evaluate(position, setting);
 			move.undo();
 			
-			evaluationMap.put(move.toString(), evaluation);
+			evaluationMap.put(evaluation, move.toString());
 			if(evaluation.isBetterThan(best)){
 				best = evaluation;
 				bestMove = move;
@@ -62,7 +62,7 @@ public class AIPlayer<P extends Position<?>, E extends Evaluation<E>, S extends 
 		bestMove.play();
 		return line;
 	}
-	public Map<String, E> evaluationMap(){
+	public Map<E, String> evaluationMap(){
 		return evaluationMap;
 	}
 }

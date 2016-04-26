@@ -20,16 +20,14 @@ public class AlphaBetaAnalyzer<P extends Position<?>, E extends Evaluation<E>> i
 	@Override
 	public E evaluate(P position, AlphaBetaSetting<E> settings) {
 		if(position == null || settings == null)throw new IllegalArgumentException("null");
-		int depth = settings.depth();
 		
-		return evaluate(position, depth, settings.bound(), null).reverse();
+		return evaluate(position, settings.depth(), settings.bound(), null).reverse();
 	}
 	@Override
 	public E evaluate(P position, AlphaBetaSetting<E> settings, List<String> line){
 		if(position == null || settings == null || line == null)throw new IllegalArgumentException("null");
-
-		int depth = settings.depth();
-		E result = evaluate(position, depth, settings.bound(), line).reverse();
+		
+		E result = evaluate(position, settings.depth(), settings.bound().reverse(), line).reverse();
 		Collections.reverse(line);
 		return result;
 	}
