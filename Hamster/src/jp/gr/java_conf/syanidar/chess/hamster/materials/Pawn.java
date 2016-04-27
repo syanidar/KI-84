@@ -1,5 +1,5 @@
 package jp.gr.java_conf.syanidar.chess.hamster.materials;
-import static jp.gr.java_conf.syanidar.chess.hamster.materials.ColorEnum.*;
+import static jp.gr.java_conf.syanidar.chess.hamster.materials.ColorEnum.WHITE;
 
 
 public class Pawn extends Piece {
@@ -10,7 +10,7 @@ public class Pawn extends Piece {
 
 
 	@Override
-	public String toString(){return color() == WHITE ? "♙" : "♟";}
+	public String toString(){return color() == WHITE ? "P" : "p";}
 
 	@Override
 	public boolean isEqualTo(PieceEnum piece) {

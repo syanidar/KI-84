@@ -10,7 +10,7 @@ public class Bishop extends Piece {
 	}
 
 	@Override
-	public String toString(){return color() == WHITE ? "♗" : "♝";}
+	public String toString(){return color() == WHITE ? "B" : "b";}
 
 	@Override
 	public boolean isEqualTo(PieceEnum piece) {

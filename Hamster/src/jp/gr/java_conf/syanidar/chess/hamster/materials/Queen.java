@@ -10,7 +10,7 @@ public class Queen extends Piece {
 	}
 
 	@Override
-	public String toString(){return color() == WHITE ? "♕" : "♛";}
+	public String toString(){return color() == WHITE ? "Q" : "q";}
 	@Override
 	public boolean isEqualTo(PieceEnum piece) {
 		return piece == PieceEnum.QUEEN;

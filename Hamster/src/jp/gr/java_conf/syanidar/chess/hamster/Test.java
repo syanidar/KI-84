@@ -11,10 +11,10 @@ import jp.gr.java_conf.syanidar.algorithm.mosquito.game.Game;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.game.HumanPlayer;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.game.MoveSelector;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.game.NoMoveHandler;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.game.Player;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.game.Viewer;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.minimax.AlphaBetaAnalyzer;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.minimax.AlphaBetaSetting;
-
 import jp.gr.java_conf.syanidar.chess.hamster.game.CentiPawn;
 import jp.gr.java_conf.syanidar.chess.hamster.game.ChessPosition;
 import jp.gr.java_conf.syanidar.chess.hamster.game.HamsterEvaluator;
@@ -22,18 +22,20 @@ import jp.gr.java_conf.syanidar.chess.hamster.game.HamsterEvaluator;
 public class Test {
 	
 	public static final void main(String...strings){
+		
 		HamsterEvaluator he = HamsterEvaluator.getInstance();
 		AlphaBetaAnalyzer<ChessPosition, CentiPawn> aba = new AlphaBetaAnalyzer<>(he);
-		AlphaBetaSetting<CentiPawn> abs = new AlphaBetaSetting<>(3, he);
+		AlphaBetaSetting<CentiPawn> abs = new AlphaBetaSetting<>(2, he);
 		AIPlayer<ChessPosition, CentiPawn, AlphaBetaSetting<CentiPawn>> ap = new AIPlayer<>(aba, abs, he);
-//		HumanPlayer<ChessPosition> hp = new HumanPlayer<>(new ChessMoveSelector());
+		HumanPlayer<ChessPosition> hp = new HumanPlayer<>(new ChessMoveSelector());
 		ChessPosition position = new ChessPosition();
-		Game<ChessPosition> game = new Game<>(position, ap, ap, new ChessViewer());
+		Player<ChessPosition> white = strings[0].equals("AI") ? ap : hp;
+		Player<ChessPosition> black = strings[1].equals("AI") ? ap : hp;
+		Game<ChessPosition> game = new Game<>(position, white, black, new ChessViewer());
 		ChessNoMoveHandler ch = new ChessNoMoveHandler();
 		
 		while(!ch.terminated){
 			game.play(ch);
-			System.out.println(ap.evaluationMap());
 		}
 	}
 	private static class ChessNoMoveHandler implements NoMoveHandler<ChessPosition>{

@@ -10,7 +10,7 @@ public class Rook extends Piece {
 	}
 
 	@Override
-	public String toString(){return color() == WHITE ? "♖" : "♜";}
+	public String toString(){return color() == WHITE ? "R" : "r";}
 	@Override
 	public boolean isEqualTo(PieceEnum piece) {
 		return piece == PieceEnum.ROOK;

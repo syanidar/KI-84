@@ -1,5 +1,6 @@
 package jp.gr.java_conf.syanidar.chess.hamster.game;
 
+import java.util.Random;
 import java.util.function.ToIntFunction;
 
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Evaluator;
@@ -10,6 +11,7 @@ import jp.gr.java_conf.syanidar.chess.hamster.materials.Square;
 
 public class HamsterEvaluator implements Evaluator<ChessPosition, CentiPawn> {
 	private static final HamsterEvaluator INSTANCE = new HamsterEvaluator();
+	private static final Random RANDOM = new Random();
 	private HamsterEvaluator(){}
 	
 	@Override
@@ -32,7 +34,7 @@ public class HamsterEvaluator implements Evaluator<ChessPosition, CentiPawn> {
 		Board board = p.board();
 		int white = board.squaresMatch(s -> s.isOccupiedBy(ColorEnum.WHITE)).stream().mapToInt(func).sum();
 		int black = board.squaresMatch(s -> s.isOccupiedBy(ColorEnum.BLACK)).stream().mapToInt(func).sum();
-		return new CentiPawn(white - black + p.mobility());
+		return new CentiPawn(white - black + p.mobility() + RANDOM.nextInt(11) - 5);
 	}
 	@Override
 	public CentiPawn lowerBound(){

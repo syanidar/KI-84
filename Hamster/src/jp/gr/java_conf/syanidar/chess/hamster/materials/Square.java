@@ -1,7 +1,5 @@
 package jp.gr.java_conf.syanidar.chess.hamster.materials;
 
-import static jp.gr.java_conf.syanidar.chess.hamster.materials.ColorEnum.*;
-
 import java.util.Optional;
 
 public class Square extends Coordinates{
@@ -49,6 +47,6 @@ public class Square extends Coordinates{
 	@Override
 	public String toString(){
 		Optional<String> result = piece.flatMap(p -> Optional.of(p.toString()));
-		return result.orElse(color == WHITE ? "□" : "■");
+		return result.orElse(".");
 	}
 }
