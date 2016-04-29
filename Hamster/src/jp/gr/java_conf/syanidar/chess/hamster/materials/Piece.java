@@ -13,5 +13,6 @@ public abstract class Piece {
 	public abstract boolean isEqualTo(PieceEnum piece);
 	public abstract boolean isEqualTo(ColorEnum color, PieceEnum piece);
 	public abstract String toAlgebraicNotation();
+	public abstract String toIcon();
 	public abstract PieceEnum toEnum();
 }

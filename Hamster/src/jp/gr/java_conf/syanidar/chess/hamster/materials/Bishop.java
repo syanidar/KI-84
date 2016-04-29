@@ -24,6 +24,10 @@ public class Bishop extends Piece {
 	@Override
 	public String toAlgebraicNotation(){return "B";}
 	@Override
+	public String toIcon(){
+		return color() == WHITE ? "♗" : "♝";
+	}
+	@Override
 	public PieceEnum toEnum(){
 		return PieceEnum.BISHIP;
 	}

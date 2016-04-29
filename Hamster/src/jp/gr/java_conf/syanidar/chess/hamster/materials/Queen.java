@@ -26,4 +26,8 @@ public class Queen extends Piece {
 	public PieceEnum toEnum(){
 		return PieceEnum.QUEEN;
 	}
+	@Override
+	public String toIcon(){
+		return color() == WHITE ? "♕" : "♛";
+	}
 }

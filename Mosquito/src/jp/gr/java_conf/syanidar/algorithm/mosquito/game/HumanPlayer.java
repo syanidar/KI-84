@@ -1,24 +1,27 @@
 package jp.gr.java_conf.syanidar.algorithm.mosquito.game;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.TreeMap;
 
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Move;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Result;
 import jp.gr.java_conf.syanidar.utils.collection.ListUtility;
 
-public class HumanPlayer<P extends Position<?>> implements Player<P> {
+public class HumanPlayer<P extends Position<?>, R extends Result<R, ?>> implements Player<P, R> {
 	private final MoveSelector selector;
 	public HumanPlayer(MoveSelector selector){
 		this.selector = selector;
 	}
 	@Override
-	public Optional<List<String>> play(P position, NoMoveHandler<P> handler) {
+	public Map<String, R> play(P position, NoMoveHandler<P> handler) {
+		Map<String, R> map = new TreeMap<>();
 		List<? extends Move> moves = position.moves();
 		int size = moves.size();
 		if(size == 0){
 			handler.handle(position);
-			return Optional.empty();
+			return map;
 		}
 		List<String> moveStrings = ListUtility.map(moves, m -> m.toString());
 		String input = null;
@@ -32,6 +35,6 @@ public class HumanPlayer<P extends Position<?>> implements Player<P> {
 				break;
 			}
 		}
-		return Optional.empty();
+		return map;
 	}
 }

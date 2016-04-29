@@ -27,4 +27,8 @@ public class Pawn extends Piece {
 	public PieceEnum toEnum(){
 		return PieceEnum.PAWN;
 	}
+	@Override
+	public String toIcon(){
+		return color() == WHITE ? "♙" : "♟";
+	}
 }

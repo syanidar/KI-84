@@ -224,4 +224,14 @@ public class Board{
 		}
 		return sb.toString();
 	}
+	public String toIcon(){
+		StringBuilder sb = new StringBuilder();
+		for(int row = 7; row >= 0; row--){
+			for(int column = 0; column < 8; column++){
+				sb.append(squares[column * 8 + row].toIcon());
+			}
+			sb.append(System.lineSeparator());
+		}
+		return sb.toString();
+	}
 }

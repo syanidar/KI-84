@@ -48,13 +48,6 @@ public class ChessPosition implements Position<ChessMove> {
 	public Board board(){
 		return board;
 	}
-	public int mobility(){
-		int result = moves().size();
-		changeTheSide();
-		result -= moves().size();
-		changeTheSide();
-		return colorToPlay == ColorEnum.WHITE ? result : -result;
-	}
 	public ColorEnum colorToPlay(){
 		return colorToPlay;
 	}
@@ -92,6 +85,13 @@ public class ChessPosition implements Position<ChessMove> {
 		}
 		return true;
 	}
+	public boolean isQuiet(){
+		ColorEnum enemy = colorToPlay.opposite();
+		for(Square s : board.squaresMatch(s -> s.isOccupiedBy(enemy))){
+			if(ad.piecesAttackTheSquareOf(enemy, s))return false;
+		}
+		return true;
+	}
 	void update(){
 		changeTheSide();
 		snapshots.add(board.snapshot());
@@ -102,6 +102,6 @@ public class ChessPosition implements Position<ChessMove> {
 	}
 	@Override
 	public String toString(){
-		return board.toString();
+		return board.toIcon();
 	}
 }

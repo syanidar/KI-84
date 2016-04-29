@@ -19,22 +19,46 @@ public class HamsterEvaluator implements Evaluator<ChessPosition, CentiPawn> {
 		ToIntFunction<Square> func = s -> {
 			switch(s.piece().get().toEnum()){
 			case PAWN:
+				int result = 100;
 				for(Square e : p.board().squaresMatch(square -> square.isOnFile(s.file()))){
-					if(e.piece().filter(piece -> piece.isEqualTo(PieceEnum.PAWN)).isPresent())
-						return 50;
+					if(e.piece().filter(piece -> piece.isEqualTo(PieceEnum.PAWN)).isPresent()){
+						result = 50;
+						break;
+					}
 				}
-				return 100;
-			case KNIGHT:	return 300;
-			case BISHIP:	return 300;
-			case ROOK:		return 500;
-			case QUEEN:		return 900;
+				if(s.piece().get().color() == ColorEnum.WHITE)return result + (s.row() - 1) * 8;
+				else return result + (6 - s.row()) * 8;
+			case KNIGHT:	
+				boolean isOnTheCenter = 1 < s.column() && s.column() < 6 && 1 < s.row() && s.row() < 6;
+				return 300 + (isOnTheCenter ? 20 : 0);
+			case BISHIP:	return 310;
+			case ROOK:	{
+					boolean gripsAFile = true;
+					for(Square e : p.board().squaresMatch(square -> square.isOnFile(s.file()))){
+						if(e.piece().filter(piece -> piece.isEqualTo(PieceEnum.PAWN)).isPresent()){
+							gripsAFile = false;
+							break;
+						}
+					}
+					return 500 + (gripsAFile ? 50 : 0) + (s.row() == 6 ? 50 : 0);
+				}
+			case QUEEN:	{
+					boolean gripsAFile = true;
+					for(Square e : p.board().squaresMatch(square -> square.isOnFile(s.file()))){
+						if(e.piece().filter(piece -> piece.isEqualTo(PieceEnum.PAWN)).isPresent()){
+							gripsAFile = false;
+							break;
+						}
+					}
+					return 900 + (gripsAFile ? 50 : 0) + (s.row() == 6 ? 50 : 0);
+				}
 			default:		return 0;
 			}
 		};
 		Board board = p.board();
 		int white = board.squaresMatch(s -> s.isOccupiedBy(ColorEnum.WHITE)).stream().mapToInt(func).sum();
 		int black = board.squaresMatch(s -> s.isOccupiedBy(ColorEnum.BLACK)).stream().mapToInt(func).sum();
-		return new CentiPawn(white - black + p.mobility() + RANDOM.nextInt(11) - 5);
+		return new CentiPawn(white - black + RANDOM.nextInt(11) - 5);
 	}
 	@Override
 	public CentiPawn lowerBound(){

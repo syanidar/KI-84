@@ -24,4 +24,8 @@ public final class CentiPawn implements Evaluation<CentiPawn>{
 	public String toString(){
 		return "Evaluation:" + String.valueOf(value);
 	}
+	@Override
+	public int compareTo(CentiPawn arg0) {
+		return value - arg0.value;
+	}
 }

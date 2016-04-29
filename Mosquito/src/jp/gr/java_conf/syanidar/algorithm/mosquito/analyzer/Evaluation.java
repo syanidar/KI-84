@@ -12,9 +12,4 @@ public interface Evaluation <E extends Evaluation<E>> extends Comparable<E>{
 		}
 		return evaluation;
 	}
-	
-	@Override
-	public default int compareTo(E evaluation){
-		return isBetterThan(evaluation) ? -1 : 1;
-	}
 }

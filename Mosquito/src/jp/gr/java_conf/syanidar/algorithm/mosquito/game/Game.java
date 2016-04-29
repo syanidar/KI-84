@@ -1,16 +1,17 @@
 package jp.gr.java_conf.syanidar.algorithm.mosquito.game;
 
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Result;
 
-public class Game <P extends Position<?>>{
+public class Game <P extends Position<?>, R extends Result<R, ?>>{
 	private final P position;
-	private final Player<P> first;
-	private final Player<P> second;
-	private final Viewer<P> viewer;
+	private final Player<P, R> first;
+	private final Player<P, R> second;
+	private final Viewer<P, R> viewer;
 	
-	private Player<P> current;
+	private Player<P, R> current;
 	
-	public Game(P position, Player<P> first, Player<P> second, Viewer<P> viewer){
+	public Game(P position, Player<P, R> first, Player<P, R> second, Viewer<P, R> viewer){
 		this.position = position;
 		this.first = first;
 		this.second = second;
@@ -19,7 +20,7 @@ public class Game <P extends Position<?>>{
 	}
 	public void play(NoMoveHandler<P> handler){
 		viewer.drawBoard(position);
-		viewer.drawComputedLine(current.play(position, handler));
+		viewer.drawResults(current.play(position, handler));
 		changeTheSide();
 	}
 	public void changeTheSide(){

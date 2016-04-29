@@ -4,33 +4,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Analyzer;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Evaluation;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Evaluator;
-import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.LookAheadAnalyzer;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Move;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
 
-public class MinimaxAnalyzer<P extends Position<?>, E extends Evaluation<E>> implements LookAheadAnalyzer<P, MinimaxSetting, E> {
+public class MinimaxAnalyzer<P extends Position<?>, E extends Evaluation<E>> implements Analyzer<P, MinimaxSetting, MinimaxResult<E>> {
 	private Evaluator<P, E> evaluator;
 	public MinimaxAnalyzer(Evaluator<P, E> evaluator){
 		if(evaluator == null)throw new IllegalArgumentException();
 		this.evaluator = evaluator;
 	}
 	@Override
-	public E evaluate(P position, MinimaxSetting settings) {
+	public MinimaxResult<E> evaluate(P position, MinimaxSetting settings) {
 		if(position == null || settings == null)throw new IllegalArgumentException("null");
 		int depth = settings.depth();
 		
-		return evaluate(position, depth, null).reverse();
-	}
-	@Override
-	public E evaluate(P position, MinimaxSetting settings, List<String> sequence){
-		if(position == null || settings == null || sequence == null)throw new IllegalArgumentException("null");
-
-		int depth = settings.depth();
-		E result = evaluate(position, depth, sequence).reverse();
-		Collections.reverse(sequence);
-		return result;
+		List<String> line = new ArrayList<>();
+		E evaluation = evaluate(position, depth, line).reverse();
+		Collections.reverse(line);
+		return new MinimaxResult<>(evaluation, line);
 	}
 	
 	private E evaluate(P position, int depth, List<String> line){

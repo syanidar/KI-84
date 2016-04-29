@@ -27,4 +27,8 @@ public class King extends Piece {
 	public PieceEnum toEnum(){
 		return PieceEnum.KING;
 	}
+	@Override
+	public String toIcon(){
+		return color() == WHITE ? "♔" : "♚";
+	}
 }

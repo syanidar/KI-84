@@ -42,11 +42,15 @@ public class Square extends Coordinates{
 	public Optional<Square> next(DirectionEnum d){
 		assert d != null;
 		Optional<Coordinates> location = d.increment(this);
-		return location.flatMap(l -> Optional.of(board.squareAt(l)));
+		return location.map(l -> board.squareAt(l));
 	}
 	@Override
 	public String toString(){
 		Optional<String> result = piece.flatMap(p -> Optional.of(p.toString()));
 		return result.orElse(".");
+	}
+	public String toIcon(){
+		Optional<String> result = piece.map(p -> p.toIcon());
+		return result.orElse(color == ColorEnum.WHITE ? "□" : "■");
 	}
 }

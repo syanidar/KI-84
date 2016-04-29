@@ -26,4 +26,8 @@ public class Rook extends Piece {
 	public PieceEnum toEnum(){
 		return PieceEnum.ROOK;
 	}
+	@Override
+	public String toIcon(){
+		return color() == WHITE ? "♖" : "♜";
+	}
 }
