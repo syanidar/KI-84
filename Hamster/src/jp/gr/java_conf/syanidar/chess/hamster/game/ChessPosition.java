@@ -102,6 +102,6 @@ public class ChessPosition implements Position<ChessMove> {
 	}
 	@Override
 	public String toString(){
-		return board.toIcon();
+		return board.toString();
 	}
 }
