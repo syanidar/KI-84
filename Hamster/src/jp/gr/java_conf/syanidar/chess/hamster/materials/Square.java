@@ -2,17 +2,18 @@ package jp.gr.java_conf.syanidar.chess.hamster.materials;
 
 import java.util.Optional;
 
-public class Square extends Coordinates{
-
+public class Square{
+	private final Coordinates coordinates;
 	private final ColorEnum color;
 	private final Board board;
 	
 	private Optional<Piece> piece;
 	
-	Square(int column, int row, ColorEnum c, Board b) {
-		super(column, row);
+	Square(Coordinates co, ColorEnum c, Board b) {
+		assert co != null;
 		assert c != null;
 		assert b != null;
+		coordinates = co;
 		color = c;
 		board = b;
 		piece = Optional.empty();
@@ -26,6 +27,7 @@ public class Square extends Coordinates{
 		piece = Optional.of(p);
 	}
 	public Board board(){return board;}
+	public Coordinates coordinates(){return coordinates;}
 	public Piece remove(){
 		assert piece.isPresent();
 		Piece p = piece.get();
@@ -41,8 +43,11 @@ public class Square extends Coordinates{
 	}
 	public Optional<Square> next(DirectionEnum d){
 		assert d != null;
-		Optional<Coordinates> location = d.increment(this);
+		Optional<Coordinates> location = d.increment(coordinates);
 		return location.map(l -> board.squareAt(l));
+	}
+	public boolean isAt(Coordinates c){
+		return coordinates.equals(c);
 	}
 	@Override
 	public String toString(){
@@ -52,5 +57,10 @@ public class Square extends Coordinates{
 	public String toIcon(){
 		Optional<String> result = piece.map(p -> p.toIcon());
 		return result.orElse(color == ColorEnum.WHITE ? "□" : "■");
+	}
+	@Override
+	public boolean equals(Object o){
+		if(!(o instanceof Square))throw new IllegalArgumentException();
+		return super.equals(o);
 	}
 }

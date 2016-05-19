@@ -47,6 +47,8 @@ public class AIPlayer<P extends Position<?>, S extends Setting, E extends Evalua
 			}
 		}
 		bestMove.play();
+		
+		
 		return map;
 	}
 }

@@ -9,10 +9,10 @@ import jp.gr.java_conf.syanidar.chess.hamster.materials.Coordinates;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.DirectionEnum;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.Square;
 
-public class QueenTeritoryChecker extends BishopTeritoryChecker {
+public class QueenTerritoryChecker extends BishopTerritoryChecker {
 	private static final Set<DirectionEnum> directions = EnumSet.of(NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST);
 
-	public QueenTeritoryChecker(Square s) {
+	public QueenTerritoryChecker(Square s) {
 		super(s);
 	}
 	@Override

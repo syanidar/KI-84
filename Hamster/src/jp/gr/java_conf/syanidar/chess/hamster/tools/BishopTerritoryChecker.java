@@ -10,11 +10,11 @@ import jp.gr.java_conf.syanidar.chess.hamster.materials.Coordinates;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.DirectionEnum;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.Square;
 
-public class BishopTeritoryChecker implements PieceTeritoryChecker {
+public class BishopTerritoryChecker extends PieceTerritoryChecker {
 	private static final Set<DirectionEnum> directions = EnumSet.of(NORTH_EAST, SOUTH_EAST, SOUTH_WEST, NORTH_WEST);
 	private final Square square;
 	
-	public BishopTeritoryChecker(Square s){square = s;}
+	public BishopTerritoryChecker(Square s){square = s;}
 	
 	@Override
 	public boolean pieceControls(Coordinates c) {
@@ -28,7 +28,7 @@ public class BishopTeritoryChecker implements PieceTeritoryChecker {
 			Optional<Square> next = square.next(direction);
 			
 			while(next.isPresent()){
-				next = next.filter(n -> !n.equals(c));
+				next = next.filter(n -> !n.isAt(c));
 				if(!next.isPresent())return true;
 				next = next
 						.filter(n -> !n.isOccupied())

@@ -9,4 +9,8 @@ public enum RankEnum {
 	boolean involves(Coordinates c){
 		return c.row() == row;
 	}
+	@Override
+	public String toString(){
+		return String.valueOf(row + 1);
+	}
 }

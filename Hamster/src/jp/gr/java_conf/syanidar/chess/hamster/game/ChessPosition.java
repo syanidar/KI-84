@@ -7,7 +7,7 @@ import java.util.Map;
 
 import jp.gr.java_conf.syanidar.chess.hamster.move.*;
 import jp.gr.java_conf.syanidar.chess.hamster.tools.AttackDetector;
-import jp.gr.java_conf.syanidar.utils.collection.ListUtility;
+import jp.gr.java_conf.syanidar.util.collection.ListUtility;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.*;
 
@@ -24,9 +24,9 @@ public class ChessPosition implements Position<ChessMove> {
 	public ChessPosition(){
 		board = new Board();
 		ss = new ScoreSheet();
-		lmg = new DefaultMoveGenerator(board, ss);
-		ad = new AttackDetector(board);
+		ad = AttackDetector.getInstance(board);
 		lt = new DefaultLegalityTester(ad);
+		lmg = new DefaultMoveGenerator(board, ss, lt);
 		snapshots = new ArrayList<>();
 		colorToPlay = ColorEnum.WHITE;
 	}
@@ -34,10 +34,9 @@ public class ChessPosition implements Position<ChessMove> {
 	public List<ChessMove> moves() {
 		if(!hasEnoughMaterials())return new ArrayList<ChessMove>();
 		
-		List<Move> moves = lmg.generateLegalMoves(lt, colorToPlay);
+		List<Move> moves = lmg.generateLegalMoves(colorToPlay);
 		return ListUtility.map(moves, m -> new ChessMove(this, m));
 	}
-	@Override
 	public void changeTheSide(){
 		colorToPlay = colorToPlay.opposite();
 	}
@@ -88,7 +87,7 @@ public class ChessPosition implements Position<ChessMove> {
 	public boolean isQuiet(){
 		ColorEnum enemy = colorToPlay.opposite();
 		for(Square s : board.squaresMatch(s -> s.isOccupiedBy(enemy))){
-			if(ad.piecesAttackTheSquareOf(enemy, s))return false;
+			if(ad.piecesAttackTheSquareOf(enemy, s.coordinates()))return false;
 		}
 		return true;
 	}

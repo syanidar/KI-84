@@ -1,13 +1,13 @@
 package jp.gr.java_conf.syanidar.algorithm.mosquito.game;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Move;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Result;
-import jp.gr.java_conf.syanidar.utils.collection.ListUtility;
+import jp.gr.java_conf.syanidar.util.collection.ListUtility;
 
 public class HumanPlayer<P extends Position<?>, R extends Result<R, ?>> implements Player<P, R> {
 	private final MoveSelector selector;
@@ -16,7 +16,7 @@ public class HumanPlayer<P extends Position<?>, R extends Result<R, ?>> implemen
 	}
 	@Override
 	public Map<String, R> play(P position, NoMoveHandler<P> handler) {
-		Map<String, R> map = new TreeMap<>();
+		Map<String, R> map = new HashMap<>();
 		List<? extends Move> moves = position.moves();
 		int size = moves.size();
 		if(size == 0){

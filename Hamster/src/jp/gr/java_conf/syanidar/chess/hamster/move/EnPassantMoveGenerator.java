@@ -27,7 +27,7 @@ class EnPassantMoveGenerator implements MoveGenerator {
 		DirectionEnum dirOfTheEnemy = DirectionEnum.EAST;
 		for(int i = 0; i < 2; i++){
 			square.next(dirOfTheEnemy)
-			.filter(n -> n.isOccupiedBy(color.opposite()) && square.row() == (color == ColorEnum.WHITE ? 4 : 3))
+			.filter(n -> n.isOccupiedBy(color.opposite()) && square.coordinates().row() == (color == ColorEnum.WHITE ? 4 : 3))
 			.filter(n -> ss.InitialPawnPushHasBeenPlayedInvolving(n.piece().get()))
 			.ifPresent(n -> result.add(new Move(recorder, new Elimination(n), new Walk(square, n.next(direction).get()))));
 

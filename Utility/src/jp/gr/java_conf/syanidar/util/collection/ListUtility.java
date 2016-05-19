@@ -1,11 +1,11 @@
-package jp.gr.java_conf.syanidar.utils.collection;
+package jp.gr.java_conf.syanidar.util.collection;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Function;
 
-public class ListUtility {
+public final class ListUtility {
 	private ListUtility(){}
 	
 	public static final <T, R> List<R> map(List<T> input, Function<T, R> func){
@@ -16,7 +16,7 @@ public class ListUtility {
 		return result;
 	}
 	@SuppressWarnings("unchecked")
-	public static final <T0, T1> void sort(List<T0> list0, List<T1> list1){
+	public static final <T0 extends Comparable<? super T0>, T1> void sort(List<T0> list0, List<T1> list1){
 		Object[] array0 = list0.toArray();
 		Object[] array1 = list1.toArray();
 		

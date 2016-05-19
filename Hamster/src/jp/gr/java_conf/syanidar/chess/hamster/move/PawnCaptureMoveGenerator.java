@@ -30,7 +30,7 @@ public class PawnCaptureMoveGenerator implements MoveGenerator {
 		next = next.filter(n -> n.isOccupiedBy(color.opposite()));
 		if(!next.isPresent())return result;
 		
-		if (next.get().row() != (color == ColorEnum.WHITE ? 7 : 0)) {
+		if (next.get().coordinates().row() != (color == ColorEnum.WHITE ? 7 : 0)) {
 			Move move = new Move(recorder, new Elimination(next.get()), new Walk(square, next.get()));
 			result.add(move);
 		}else{

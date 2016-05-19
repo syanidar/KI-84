@@ -10,4 +10,8 @@ public enum FileEnum {
 	boolean involves(Coordinates c){
 		return c.column() == column;
 	}
+	@Override
+	public String toString(){
+		return this.name().toLowerCase();
+	}
 }

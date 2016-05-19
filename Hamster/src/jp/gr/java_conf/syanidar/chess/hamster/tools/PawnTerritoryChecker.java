@@ -11,12 +11,12 @@ import jp.gr.java_conf.syanidar.chess.hamster.materials.Coordinates;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.DirectionEnum;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.Square;
 
-public class PawnTeritoryChecker extends KnightTeritoryChecker {
+public class PawnTerritoryChecker extends KnightTerritoryChecker {
 	private static final Set<DirectionEnum> directionsWhite = EnumSet.of(NORTH_EAST, NORTH_WEST);
 	private static final Set<DirectionEnum> directionsBlack = EnumSet.of(SOUTH_EAST, SOUTH_WEST);
 	
 	private final ColorEnum color;
-	public PawnTeritoryChecker(Square s, ColorEnum c) {
+	public PawnTerritoryChecker(Square s, ColorEnum c) {
 		super(s);
 		assert c != null;
 		color = c;

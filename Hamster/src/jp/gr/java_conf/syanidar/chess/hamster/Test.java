@@ -4,11 +4,8 @@ import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import jp.gr.java_conf.syanidar.algorithm.mosquito.game.Game;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.game.MoveSelector;
@@ -19,14 +16,15 @@ import jp.gr.java_conf.syanidar.algorithm.mosquito.minimax.MinimaxResult;
 import jp.gr.java_conf.syanidar.chess.hamster.game.CentiPawn;
 import jp.gr.java_conf.syanidar.chess.hamster.game.ChessPosition;
 import jp.gr.java_conf.syanidar.chess.hamster.game.ChessUtility;
+import jp.gr.java_conf.syanidar.util.collection.MapUtility;
 
 public class Test {
 	
 	public static final void main(String...strings){
 		
 		ChessPosition position = new ChessPosition();
-		Player<ChessPosition, MinimaxResult<CentiPawn>> white = strings[0].equals("AI") ? ChessUtility.ai(3, p -> p.isQuiet()) : ChessUtility.human(new ChessMoveSelector());
-		Player<ChessPosition, MinimaxResult<CentiPawn>> black = strings[1].equals("AI") ? ChessUtility.ai(3, p -> p.isQuiet()) : ChessUtility.human(new ChessMoveSelector());
+		Player<ChessPosition, MinimaxResult<CentiPawn>> white = strings[0].equals("AI") ? ChessUtility.ai(0, 3, p -> p.isQuiet()) : ChessUtility.human(new ChessMoveSelector());
+		Player<ChessPosition, MinimaxResult<CentiPawn>> black = strings[1].equals("AI") ? ChessUtility.ai(0, 3, p -> p.isQuiet()) : ChessUtility.human(new ChessMoveSelector());
 		Game<ChessPosition, MinimaxResult<CentiPawn>> game = new Game<>(position, white, black, new ChessViewer());
 		ChessNoMoveHandler ch = new ChessNoMoveHandler();
 		
@@ -65,17 +63,13 @@ public class Test {
 	}
 	private static class ChessViewer implements Viewer<ChessPosition, MinimaxResult<CentiPawn>>{
 		@Override
-		public void drawBoard(ChessPosition position) {
+		public void updateBoard(ChessPosition position) {
 			System.out.println(position);
 		}
 		@Override
-		public void drawResults(Map<String, MinimaxResult<CentiPawn>> results) {				
-			List<Entry<String, MinimaxResult<CentiPawn>>> list = new ArrayList<>(results.entrySet());
-			Collections.sort(list, (e0, e1) -> e0.getValue().evaluation().compareTo(e1.getValue().evaluation()));
-			for(Entry<String, MinimaxResult<CentiPawn>> e : list){
-				System.out.println(e.getKey() + ":");
-				System.out.println("	" + e.getValue().expectedLine());
-				System.out.println("	" + e.getValue().evaluation());
+		public void updateResults(Map<String, MinimaxResult<CentiPawn>> results) {				
+			if(!results.isEmpty()){
+				System.out.println(MapUtility.sortByValues(results));
 			}
 		}
 	}

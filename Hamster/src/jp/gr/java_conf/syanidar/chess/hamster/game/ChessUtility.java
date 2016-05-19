@@ -10,7 +10,7 @@ import jp.gr.java_conf.syanidar.algorithm.mosquito.minimax.AlphaBetaAnalyzer;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.minimax.AlphaBetaSetting;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.minimax.MinimaxResult;
 
-public class ChessUtility {
+public final class ChessUtility {
 	private ChessUtility(){}
 	
 	public static final Player<ChessPosition, MinimaxResult<CentiPawn>> ai(int depth){
@@ -19,10 +19,10 @@ public class ChessUtility {
 		AlphaBetaSetting<ChessPosition, CentiPawn> abs = new AlphaBetaSetting<>(depth, he);
 		return new AIPlayer<>(aba, abs, he);
 	}
-	public static final Player<ChessPosition, MinimaxResult<CentiPawn>> ai(int depth, Predicate<ChessPosition> predicate){
+	public static final Player<ChessPosition, MinimaxResult<CentiPawn>> ai(int minDepth, int maxDepth, Predicate<ChessPosition> predicate){
 		HamsterEvaluator he = HamsterEvaluator.getInstance();
 		AlphaBetaAnalyzer<ChessPosition, CentiPawn> aba = new AlphaBetaAnalyzer<>(he);
-		AlphaBetaSetting<ChessPosition, CentiPawn> abs = new AlphaBetaSetting<>(depth, he, predicate);
+		AlphaBetaSetting<ChessPosition, CentiPawn> abs = new AlphaBetaSetting<>(minDepth, maxDepth, he, predicate);
 		return new AIPlayer<>(aba, abs, he);
 	}
 	public static final Player<ChessPosition, MinimaxResult<CentiPawn>> human(MoveSelector selector){

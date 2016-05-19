@@ -29,7 +29,7 @@ class PawnPushMoveGenerator implements MoveGenerator {
 		Optional<Square> next = square.next(direction).filter(n -> !n.isOccupied());
 		
 		if(next.isPresent()){
-			if (next.get().row() != (color == ColorEnum.WHITE ? 7 : 0)) {
+			if (next.get().coordinates().row() != (color == ColorEnum.WHITE ? 7 : 0)) {
 				Move move = new Move(recorder, new Walk(square, next.get()));
 				result.add(move);
 			}else{
@@ -43,7 +43,7 @@ class PawnPushMoveGenerator implements MoveGenerator {
 				result.add(knight);
 			}
 		}
-		if(square.row() == (color == ColorEnum.WHITE ? 1 : 6)){
+		if(square.coordinates().row() == (color == ColorEnum.WHITE ? 1 : 6)){
 			next.flatMap(n -> n.next(direction)).filter(n -> !n.isOccupied()).ifPresent(n -> result.add(new Move(recorder, new Walk(square, n))));
 		}
 

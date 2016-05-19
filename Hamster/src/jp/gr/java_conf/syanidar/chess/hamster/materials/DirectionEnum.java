@@ -31,6 +31,6 @@ public enum DirectionEnum {
 		if(column < 0 || 8 <= column)return Optional.empty();
 		int row = c.row() + rowIncrement;
 		if(row < 0 || 8 <= row)return Optional.empty();
-		return Optional.of(new Coordinates(column, row));
+		return Optional.of(Coordinates.of(column, row));
 	}
 }

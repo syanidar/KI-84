@@ -37,19 +37,19 @@ class CastlingMoveGenerator implements MoveGenerator {
 	public List<Move> generate(ColorEnum color) {
 		if(color == null)throw new IllegalArgumentException();
 		List<Move> result = new ArrayList<>();
-		AttackDetector ad = new AttackDetector(board);
+		AttackDetector ad = AttackDetector.getInstance(board);
 		if(ss.pieceOnSquareHasMoved(king))return result;
 		if(ad.piecesCheckTheKingOf(color))return result;
 		
 		Optional.of(kingsRook).filter(n -> !ss.pieceOnSquareHasMoved(n))
 		.flatMap(n -> n.next(WEST)).filter(n -> !n.isOccupied())
-		.flatMap(n -> n.next(WEST)).filter(n -> !n.isOccupied() && !ad.piecesAttackTheSquareOf(color, n))
+		.flatMap(n -> n.next(WEST)).filter(n -> !n.isOccupied() && !ad.piecesAttackTheSquareOf(color, n.coordinates()))
 		.ifPresent(n -> result.add(new Move(recorder, new Walk(king, n.next(EAST).get()), new Walk(kingsRook, n))));
 		
 		Optional.of(queensRook).filter(n -> !ss.pieceOnSquareHasMoved(n))
 		.flatMap(n -> n.next(EAST)).filter(n -> !n.isOccupied())
 		.flatMap(n -> n.next(EAST)).filter(n -> !n.isOccupied())
-		.flatMap(n -> n.next(EAST)).filter(n -> !n.isOccupied() && !ad.piecesAttackTheSquareOf(color, n))
+		.flatMap(n -> n.next(EAST)).filter(n -> !n.isOccupied() && !ad.piecesAttackTheSquareOf(color, n.coordinates()))
 		.ifPresent(n -> result.add(new Move(recorder, new Walk(king, n.next(WEST).get()), new Walk(queensRook, n))));
 		
 		return result;

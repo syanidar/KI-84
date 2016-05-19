@@ -3,6 +3,7 @@ package jp.gr.java_conf.syanidar.chess.hamster.move;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.gr.java_conf.syanidar.chess.hamster.materials.Board;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.Piece;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.Square;
 
@@ -58,7 +59,10 @@ public class Move{
 				promotee = ((Promotion)e).promotee();
 			}
 		}
-		return new MoveNotation.MoveNotationBuilder(piece, origin, destination).target(target).promotee(promotee).rook(rook).build();
+		return new MoveNotation.MoveNotationBuilder(piece, origin.coordinates(), destination.coordinates()).target(target).promotee(promotee).rook(rook).build();
+	}
+	public String toAlgebraicNotation(Board board, boolean isACheck, boolean isACheckmate){
+		return notation().toAlgebraicNotation(board, isACheck, isACheckmate);
 	}
 	@Override
 	public String toString(){

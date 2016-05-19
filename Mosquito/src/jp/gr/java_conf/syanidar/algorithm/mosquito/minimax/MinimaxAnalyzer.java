@@ -39,7 +39,7 @@ public class MinimaxAnalyzer<P extends Position<?>, E extends Evaluation<E>> imp
 			List<String> newLine = line == null ? null : new ArrayList<>();
 			E evaluation = evaluate(position, depth - 1, newLine).reverse();
 			move.undo();
-			best = evaluation.IfBetterThan(best, new LineUpdater(line, newLine, depth, move));
+			best = evaluation.IfBetterThan(best, new LineUpdater(line, newLine, move));
 		}
 		return best;
 	}

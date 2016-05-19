@@ -22,28 +22,28 @@ public class AlphaBetaAnalyzer<P extends Position<?>, E extends Evaluation<E>> i
 	public MinimaxResult<E> evaluate(P position, AlphaBetaSetting<P, E> settings) {
 		if(position == null || settings == null)throw new IllegalArgumentException("null");
 		List<String> line = new ArrayList<>();
-		E evaluation = evaluate(position, settings.depth(), settings.bound().reverse(), settings.predicate(), line).reverse();
+		E evaluation = evaluate(position, settings.minDepth(), settings.maxDepth(), settings.bound().reverse(), settings.predicate(), line).reverse();
 		Collections.reverse(line);
 		return new MinimaxResult<>(evaluation, line);
 	}
-	private E evaluate(P position, int depth, Bound<E> bound, Predicate<P> predicate,  List<String> line){
-		if(predicate.test(position) || depth == 0){
+	private E evaluate(P position, int minDepth, int maxDepth, Bound<E> bound, Predicate<P> predicate,  List<String> line){
+		if(maxDepth == 0 || (minDepth <= 0 && predicate.test(position))){
 			return evaluator.evaluate(position).reverseIf(!position.theFirstPlayerHasTheMove());
 		}
 		
 		List<? extends Move> moves = position.moves();
-		if(moves.size() == 0)return evaluator.evaluateIfTerminated(position, depth).reverseIf(!position.theFirstPlayerHasTheMove());
+		if(moves.size() == 0)return evaluator.evaluateIfTerminated(position, minDepth).reverseIf(!position.theFirstPlayerHasTheMove());
 	
 		E best = evaluator.lowerBound();
 		for(Move move : moves){	
 			move.play();
 			List<String> newLine = new ArrayList<>();
-			E evaluation = evaluate(position, depth - 1, bound.reverse(), predicate, newLine).reverse();
+			E evaluation = evaluate(position, minDepth - 1, maxDepth - 1, bound.reverse(), predicate, newLine).reverse();
 			move.undo();
 			
 			if(bound.isEqualToOrWorseThan(evaluation))return evaluation;
 			bound.updateLower(evaluation);
-			best = evaluation.IfBetterThan(best, new LineUpdater(line, newLine, depth, move));
+			best = evaluation.IfBetterThan(best, new LineUpdater(line, newLine, move));
 	
 		}
 		return best;

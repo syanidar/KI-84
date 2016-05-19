@@ -19,11 +19,11 @@ public class Game <P extends Position<?>, R extends Result<R, ?>>{
 		current = first;
 	}
 	public void play(NoMoveHandler<P> handler){
-		viewer.drawBoard(position);
-		viewer.drawResults(current.play(position, handler));
+		viewer.updateBoard(position);
+		viewer.updateResults(current.play(position, handler));
 		changeTheSide();
 	}
-	public void changeTheSide(){
+	private void changeTheSide(){
 		current = current == first ? second : first;
 	}
 }

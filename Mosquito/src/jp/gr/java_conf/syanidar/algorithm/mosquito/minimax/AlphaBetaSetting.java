@@ -8,21 +8,24 @@ import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Setting;
 
 public class AlphaBetaSetting<P extends Position<?>, E extends Evaluation<E>> implements Setting {
-	private final int depth;
+	private final int minDepth;
+	private final int maxDepth;
 	private final Evaluator<?, E> evaluator;
 	private final Predicate<P> predicate;
 	private Bound<E> bound;
 
-	public AlphaBetaSetting(int depth, Evaluator<?, E> evaluator){
-		if(depth < 0)throw new IllegalArgumentException("depth = " + depth);
-		this.depth = depth;
+	public AlphaBetaSetting(int minDepth, Evaluator<?, E> evaluator){
+		if(minDepth < 0)throw new IllegalArgumentException("depth = " + minDepth);
+		this.minDepth = minDepth;
+		this.maxDepth = Integer.MAX_VALUE;
 		this.evaluator = evaluator;
 		this.bound = new Bound<E>(evaluator.lowerBound(), evaluator.upperBound());
-		this.predicate = p -> false;
+		this.predicate = p -> true;
 	}
-	public AlphaBetaSetting(int depth, Evaluator<?, E> evaluator, Predicate<P> predicate){
-		if(depth < 0)throw new IllegalArgumentException("depth = " + depth);
-		this.depth = depth;
+	public AlphaBetaSetting(int minDepth, int maxDepth, Evaluator<?, E> evaluator, Predicate<P> predicate){
+		if(minDepth < 0)throw new IllegalArgumentException("depth = " + minDepth);
+		this.minDepth = minDepth;
+		this.maxDepth = maxDepth;
 		this.evaluator = evaluator;
 		this.bound = new Bound<E>(evaluator.lowerBound(), evaluator.upperBound());
 		this.predicate = predicate;
@@ -33,8 +36,11 @@ public class AlphaBetaSetting<P extends Position<?>, E extends Evaluation<E>> im
 	Bound<E> bound(){
 		return bound;
 	}
-	int depth(){
-		return depth;
+	int minDepth(){
+		return minDepth;
+	}
+	int maxDepth(){
+		return maxDepth;
 	}
 
 	@Override

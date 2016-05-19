@@ -14,7 +14,7 @@ class Walk implements Event {
 	@Override
 	public void play() {
 		assert origin.isOccupied();
-		assert !destination.isOccupied():origin.toAlgebraicNotation() + "->" + destination.toAlgebraicNotation() + System.lineSeparator() + origin.board().toString();
+		assert !destination.isOccupied();
 		destination.put(origin.remove());
 	}
 	@Override

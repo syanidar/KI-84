@@ -3,21 +3,17 @@ package jp.gr.java_conf.syanidar.chess.hamster.materials;
 import static jp.gr.java_conf.syanidar.chess.hamster.materials.FileEnum.*;
 import static jp.gr.java_conf.syanidar.chess.hamster.materials.RankEnum.*;
 
+import jp.gr.java_conf.syanidar.util.collection.Range;
+
 public class Coordinates {
+	private static final Coordinates[] INSTANCES = instances();
 	private final int column;
 	private final int row;
 	
-	public Coordinates(int column, int row){this.column = column; this.row = row;}
-	public Coordinates(String notation){
-		if(notation.length() != 2)throw new IllegalArgumentException(notation);
-		
-		char file = notation.charAt(0);
-		char rank = notation.charAt(1);
-		
-		if(file < 'a' || 'h' < file || rank < '1' || '8' < rank)
-			throw new IllegalArgumentException(notation);
-		column = file - 'a';
-		row = rank - '1';
+	private Coordinates(int column, int row){this.column = column; this.row = row;}
+
+	public static final Coordinates of(int column, int row){
+		return INSTANCES[column * 8 + row];
 	}
 	public final int column(){return column;}
 	public final int row(){return row;}
@@ -83,5 +79,15 @@ public class Coordinates {
 		builder.append(row);
 		builder.append(")");
 		return builder.toString();
+	}
+	
+	private static final Coordinates[] instances(){
+		Coordinates[] result = new Coordinates[64];
+		for(int column : Range.of(8)){
+			for(int row : Range.of(8)){
+				result[column * 8 + row] = new Coordinates(column, row);
+			}
+		}
+		return result;
 	}
 }

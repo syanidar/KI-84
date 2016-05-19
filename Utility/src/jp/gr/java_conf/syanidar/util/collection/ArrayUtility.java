@@ -1,9 +1,9 @@
-package jp.gr.java_conf.syanidar.utils.collection;
+package jp.gr.java_conf.syanidar.util.collection;
 
 import java.util.Comparator;
 
 
-public class ArrayUtility {
+public final class ArrayUtility {
 	private ArrayUtility(){}
 	
 	public static final <T0, T1> void sort(T0[] list0, T1[] list1, Comparator<T0> comp){

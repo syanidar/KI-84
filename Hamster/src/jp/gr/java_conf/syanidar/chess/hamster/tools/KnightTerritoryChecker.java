@@ -10,12 +10,12 @@ import jp.gr.java_conf.syanidar.chess.hamster.materials.Coordinates;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.DirectionEnum;
 import jp.gr.java_conf.syanidar.chess.hamster.materials.Square;
 
-public class KnightTeritoryChecker implements PieceTeritoryChecker {
+public class KnightTerritoryChecker extends PieceTerritoryChecker {
 	private static final Set<DirectionEnum> directions = EnumSet.of(NORTH_NORTH_EAST, EAST_NORTH_EAST, EAST_SOUTH_EAST, SOUTH_SOUTH_EAST, SOUTH_SOUTH_WEST, WEST_SOUTH_WEST, WEST_NORTH_WEST, NORTH_NORTH_WEST);
 	
 	private final Square square;
 	
-	public KnightTeritoryChecker(Square s){square = s;}
+	public KnightTerritoryChecker(Square s){square = s;}
 	
 	@Override
 	public boolean pieceControls(Coordinates c) {
@@ -24,7 +24,7 @@ public class KnightTeritoryChecker implements PieceTeritoryChecker {
 	final boolean pieceControls(Coordinates c, Set<DirectionEnum> d){
 		for(DirectionEnum direction : d){
 			Optional<Square> next = square.next(direction);
-			if(next.filter(n -> n.equals(c)).isPresent())return true;
+			if(next.filter(n -> n.isAt(c)).isPresent())return true;
 		}
 		return false;
 	}

@@ -1,5 +1,7 @@
 package jp.gr.java_conf.syanidar.chess.hamster.materials;
 
+import java.util.function.Function;
+
 public class BoardSnapshot {
 	private final long wPawns;
 	private final long wKnights;
@@ -28,7 +30,49 @@ public class BoardSnapshot {
 		bQueens = bq;
 		bKing = bk;	
 	}
-
+	public Board newBoard(){
+		return new Board(toFEN());
+	}
+	public String toFEN(){
+		Function<Long, String> conv = square -> {
+			if((wPawns & square) != 0)return "P";
+			if((wKnights & square) != 0)return "N";
+			if((wBishops & square) != 0)return "B";
+			if((wRooks & square) != 0)return "R";
+			if((wQueens & square) != 0)return "Q";
+			if((wKing & square) != 0)return "K";
+			if((bPawns & square) != 0)return "p";
+			if((bKnights & square) != 0)return "n";
+			if((bBishops & square) != 0)return "b";
+			if((bRooks & square) != 0)return "r";
+			if((bQueens & square) != 0)return "q";
+			if((bKing & square) != 0)return "k";
+			throw new AssertionError();
+		};
+		long occupationMask = wPawns | wKnights | wBishops | wRooks | wQueens | wKing | bPawns | bKnights | bBishops | bRooks | bQueens | bKing;
+		int emptyCount = 0;
+		StringBuilder sb = new StringBuilder();
+		for(long square = 0x8000000000000000L; square != 0; square = square >>> 1){
+			if((occupationMask & square) != 0){
+				if(emptyCount != 0){
+					sb.append(emptyCount);
+					emptyCount = 0;
+				}
+				sb.append(conv.apply(square));
+			}else{
+				emptyCount++;
+			}
+			
+			if((square & 0x0101010101010100L) != 0){
+				if(emptyCount != 0){
+					sb.append(emptyCount);
+				}
+				sb.append("/");
+				emptyCount = 0;
+			}
+		}
+		return sb.toString();
+	}
 	@Override
 	public int hashCode() {
 		long result = 17;

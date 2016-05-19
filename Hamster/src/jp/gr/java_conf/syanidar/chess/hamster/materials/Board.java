@@ -15,7 +15,7 @@ public class Board{
 		squares = new Square[64];
 		for(int column = 0; column < 8; column++){
 			for(int row = 0; row < 8; row++){
-				squares[column * 8 + row] = new Square(column, row, (column + row) % 2 == 1 ? WHITE : BLACK, this);
+				squares[column * 8 + row] = new Square(Coordinates.of(column, row), (column + row) % 2 == 1 ? WHITE : BLACK, this);
 			}
 		}
 		squares[0].put(new Rook(WHITE));
@@ -56,7 +56,7 @@ public class Board{
 		squares = new Square[64];
 		for(int column = 0; column < 8; column++){
 			for(int row = 0; row < 8; row++){
-				squares[column * 8 + row] = new Square(column, row, (column + row) % 2 == 1 ? WHITE : BLACK, this);
+				squares[column * 8 + row] = new Square(Coordinates.of(column, row), (column + row) % 2 == 1 ? WHITE : BLACK, this);
 			}
 		}
 		int currentFenIndex = 0;
@@ -161,51 +161,56 @@ public class Board{
 		long br = 0;
 		long bq = 0;
 		long bk = 0;
+		IntUnaryOperator conv = i -> {
+			int column = i % 8;
+			int row =  7 - (i - column) / 8;
+			return column * 8 + row;
+		};
 		for(int i = 0; i < 64; i++){
-			Square s = squares[i];
+			Square s = squares[conv.applyAsInt(i)];
 			if(s.isOccupied()){
 				Piece p = s.piece().get();
 				switch(p.toEnum()){
 				case PAWN:
 					if(p.color() == WHITE){
-						wp |= 1 << i;
+						wp |= 0x8000000000000000L >>> i;
 					}else{
-						bp |= 1 << i;
+						bp |= 0x8000000000000000L >>> i;
 					}
 					break;
 				case KNIGHT:
 					if(p.color() == WHITE){
-						wn |= 1 << i;
+						wn |= 0x8000000000000000L >>> i;
 					}else{
-						bn |= 1 << i;
+						bn |= 0x8000000000000000L >>> i;
 					}
 					break;
 				case BISHIP:
 					if(p.color() == WHITE){
-						wb |= 1 << i;
+						wb |= 0x8000000000000000L >>> i;
 					}else{
-						bb |= 1 << i;
+						bb |= 0x8000000000000000L >>> i;
 					}
 					break;
 				case ROOK:
 					if(p.color() == WHITE){
-						wr |= 1 << i;
+						wr |= 0x8000000000000000L >>> i;
 					}else{
-						br |= 1 << i;
+						br |= 0x8000000000000000L >>> i;
 					}
 					break;
 				case QUEEN:
 					if(p.color() == WHITE){
-						wq |= 1 << i;
+						wq |= 0x8000000000000000L >>> i;
 					}else{
-						bq |= 1 << i;
+						bq |= 0x8000000000000000L >>> i;
 					}
 					break;
 				case KING:
 					if(p.color() == WHITE){
-						wk |= 1 << i;
+						wk |= 0x8000000000000000L >>> i;
 					}else{
-						bk |= 1 << i;
+						bk |= 0x8000000000000000L >>> i;
 					}
 					break;
 				}

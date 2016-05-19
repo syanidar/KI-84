@@ -12,17 +12,19 @@ import jp.gr.java_conf.syanidar.chess.hamster.materials.Square;
 public class DefaultMoveGenerator implements LegalMoveGenerator{
 	private final Board board;
 	private final ScoreSheet ss;
+	private final LegalityTester lt;
 	
-	public DefaultMoveGenerator(Board b, ScoreSheet s){
-		if(b == null || s == null)throw new IllegalArgumentException();
+	public DefaultMoveGenerator(Board b, ScoreSheet s, LegalityTester t){
+		if(b == null || s == null || t == null)throw new IllegalArgumentException();
 		board = b;
 		ss = s;
+		lt = t;
 	}
 	@Override
 	public List<Move> generate(ColorEnum color) {
 		if(color == null)throw new IllegalArgumentException();
-		Square kingsRook = color == ColorEnum.WHITE ? board.squareAt(new Coordinates("h1")) : board.squareAt(new Coordinates("h8"));
-		Square queensRook = color == ColorEnum.WHITE ? board.squareAt(new Coordinates("a1")) : board.squareAt(new Coordinates("a8"));
+		Square kingsRook = color == ColorEnum.WHITE ? board.squareAt(Coordinates.of(7, 0)) : board.squareAt(Coordinates.of(7, 7));
+		Square queensRook = color == ColorEnum.WHITE ? board.squareAt(Coordinates.of(0, 0)) : board.squareAt(Coordinates.of(0, 7));
 		List<Square> pieces = board.squaresMatch(s -> s.isOccupied() && s.piece().get().color() == color);
 		List<Move> result = new ArrayList<>();
 		for(Square piece : pieces){
@@ -41,7 +43,7 @@ public class DefaultMoveGenerator implements LegalMoveGenerator{
 		return result;
 	}
 	@Override
-	public List<Move> generateLegalMoves(LegalityTester lt, ColorEnum color) {
+	public List<Move> generateLegalMoves(ColorEnum color) {
 		return generate(color).stream().filter(m -> lt.isLegal(m, color)).collect(Collectors.toList());
 	}
 }
