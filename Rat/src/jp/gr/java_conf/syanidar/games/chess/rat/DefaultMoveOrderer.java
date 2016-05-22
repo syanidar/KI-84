@@ -12,6 +12,11 @@ public class DefaultMoveOrderer implements Comparator<Position.RawMove> {
 	}
 	@Override
 	public int compare(Position.RawMove m0, Position.RawMove m1) {
-		return (m1.materialGain() - m1.materialOfThePiece()) - (m0.materialGain() - m0.materialOfThePiece());
+		int result = 0;
+		if(m1.captures()){result += 1000;}
+		if(m1.materialGain() - m1.materialOfThePiece() > 0){result += 100;}
+		if(m0.captures()){result -= 1000;}
+		if(m0.materialGain() - m0.materialOfThePiece() > 0){result -= 100;}
+		return result;
 	}
 }

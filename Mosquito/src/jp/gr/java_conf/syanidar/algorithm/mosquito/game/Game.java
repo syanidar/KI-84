@@ -3,7 +3,7 @@ package jp.gr.java_conf.syanidar.algorithm.mosquito.game;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Result;
 
-public class Game <P extends Position<?>, R extends Result<R, ?>>{
+public class Game <P extends Position, R extends Result<R, ?>>{
 	private final P position;
 	private final Player<P, R> first;
 	private final Player<P, R> second;

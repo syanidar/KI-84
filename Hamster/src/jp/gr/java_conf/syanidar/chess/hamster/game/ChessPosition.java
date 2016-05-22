@@ -5,13 +5,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jp.gr.java_conf.syanidar.chess.hamster.move.*;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
+import jp.gr.java_conf.syanidar.chess.hamster.materials.Board;
+import jp.gr.java_conf.syanidar.chess.hamster.materials.BoardSnapshot;
+import jp.gr.java_conf.syanidar.chess.hamster.materials.ColorEnum;
+import jp.gr.java_conf.syanidar.chess.hamster.materials.Piece;
+import jp.gr.java_conf.syanidar.chess.hamster.materials.PieceEnum;
+import jp.gr.java_conf.syanidar.chess.hamster.materials.Square;
+import jp.gr.java_conf.syanidar.chess.hamster.move.DefaultLegalityTester;
+import jp.gr.java_conf.syanidar.chess.hamster.move.DefaultMoveGenerator;
+import jp.gr.java_conf.syanidar.chess.hamster.move.LegalMoveGenerator;
+import jp.gr.java_conf.syanidar.chess.hamster.move.LegalityTester;
+import jp.gr.java_conf.syanidar.chess.hamster.move.Move;
+import jp.gr.java_conf.syanidar.chess.hamster.move.ScoreSheet;
 import jp.gr.java_conf.syanidar.chess.hamster.tools.AttackDetector;
 import jp.gr.java_conf.syanidar.util.collection.ListUtility;
-import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
-import jp.gr.java_conf.syanidar.chess.hamster.materials.*;
 
-public class ChessPosition implements Position<ChessMove> {
+public class ChessPosition implements Position{
 	private final Board board;
 	private final ScoreSheet ss;
 	private final LegalityTester lt;
@@ -32,7 +42,7 @@ public class ChessPosition implements Position<ChessMove> {
 	}
 	@Override
 	public List<ChessMove> moves() {
-		if(!hasEnoughMaterials())return new ArrayList<ChessMove>();
+		if(!hasEnoughMaterials())return new ArrayList<>();
 		
 		List<Move> moves = lmg.generateLegalMoves(colorToPlay);
 		return ListUtility.map(moves, m -> new ChessMove(this, m));

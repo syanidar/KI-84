@@ -2,7 +2,7 @@ package jp.gr.java_conf.syanidar.games.chess.rat;
 
 import java.util.Optional;
 
-import jp.gr.java_conf.syanidar.util.bitwise.Bits;
+import jp.gr.java_conf.syanidar.util.bitwise.LongBits;
 import jp.gr.java_conf.syanidar.util.collection.Range;
 
 final class PositionUtility{
@@ -179,16 +179,16 @@ final class PositionUtility{
 		moves &= enemy | enPassantSquare;	
 		long occupancy = friendly | enemy;
 		long front = 0;
-		long initialPawnPush = 0;
+		long doublePush = 0;
 		if(color == Position.WHITE){
 			front = (square << 8) & ~occupancy;
-			initialPawnPush = Bits.intersects(square, Position.INITIAL_WHITE_PAWNS) ? (front << 8) & ~occupancy: 0;
+			doublePush = LongBits.intersects(square, Position.INITIAL_WHITE_PAWNS) ? (front << 8) & ~occupancy: 0;
 		}else{
 			front = (square >>> 8) & ~occupancy;
-			initialPawnPush = Bits.intersects(square, Position.INITIAL_BLACK_PAWNS) ? (front >>> 8) & ~occupancy: 0;
+			doublePush = LongBits.intersects(square, Position.INITIAL_BLACK_PAWNS) ? (front >>> 8) & ~occupancy: 0;
 		}
 		moves |= front;
-		moves |= initialPawnPush;
+		moves |= doublePush;
 		return moves;
 	}
 	static final long knightMoves(long square, long friendly){

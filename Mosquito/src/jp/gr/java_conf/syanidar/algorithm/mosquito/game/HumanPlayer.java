@@ -9,7 +9,7 @@ import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Result;
 import jp.gr.java_conf.syanidar.util.collection.ListUtility;
 
-public class HumanPlayer<P extends Position<?>, R extends Result<R, ?>> implements Player<P, R> {
+public class HumanPlayer<P extends Position, R extends Result<R, ?>> implements Player<P, R> {
 	private final MoveSelector selector;
 	public HumanPlayer(MoveSelector selector){
 		this.selector = selector;
@@ -19,7 +19,7 @@ public class HumanPlayer<P extends Position<?>, R extends Result<R, ?>> implemen
 		Map<String, R> map = new HashMap<>();
 		List<? extends Move> moves = position.moves();
 		int size = moves.size();
-		if(size == 0){
+		if(size == 0 || position.isDrawForced()){
 			handler.handle(position);
 			return map;
 		}

@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-import jp.gr.java_conf.syanidar.util.bitwise.Bits;
+import jp.gr.java_conf.syanidar.util.bitwise.LongBits;
 import jp.gr.java_conf.syanidar.util.collection.Range;
-import jp.gr.java_conf.syanidar.util.encryption.BitSequence;
 import jp.gr.java_conf.syanidar.util.function.Undoable;
 
-public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position<Move>{			
+public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosquito.analyzer.Position{			
 	static final class PositionBuilder{
 		private boolean whiteCanCastleOnKingside;
 		private boolean whiteCanCastleOnQueenside;
@@ -111,6 +111,8 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 	static final long WHITE_QUEEN_SIDE_CASTLING_WAY =	0x70;
 	static final long BLACK_KING_SIDE_CASLING_WAY =		0x600000000000000L;
 	static final long BLACK_QUEEN_SIDE_CASLING_WAY =	0x7000000000000000L;
+	static final long WHITE_SQUARES =						0xAAAAAAAAAAAAAAAAL;
+	static final long BLACK_SQUARES =						0x5555555555555555L;
 	
 	
 	
@@ -195,18 +197,21 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 		int piece = pieceOn(square);
 		
 		if(piece == EMPTY)return Optional.empty();
-		else return Optional.of(new Chessman(Bits.intersects(square, occupancies[WHITE])? Color.WHITE : Color.BLACK, Piece.values()[piece]));
+		else return Optional.of(new Chessman(LongBits.intersects(square, occupancies[WHITE])? Color.WHITE : Color.BLACK, Piece.values()[piece]));
 	}
 	public Optional<Chessman> pieceOn(Square square){
 		return pieceOn(square.file(), square.rank());
 	}
+	public Color sideToMove(){
+		return color == WHITE? Color.WHITE : Color.BLACK;
+	}
 	@Override
 	public List<Move> moves() {
-		RawMove[] longMoves = generateRawMoves();
+		RawMove[] rawMoves = generateRawMoves();
 		Comparator<RawMove> c = DefaultMoveOrderer.getInstance();
-		Arrays.sort(longMoves, c);
-		List<Move> result = new ArrayList<>(longMoves.length);
-		for(RawMove m : longMoves){
+		Arrays.sort(rawMoves, c);
+		List<Move> result = new ArrayList<>(rawMoves.length);
+		for(RawMove m : rawMoves){
 			Move move = m.createMove();
 			move.play();
 			boolean isIllegal = playerChecks();
@@ -218,11 +223,75 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 		return result;
 	}
 	@Override
+	public Iterator<Move> moveIterator(boolean isMoveOrderingRequired) {
+		RawMove[] rawMoves = generateRawMoves();
+		Comparator<RawMove> c = DefaultMoveOrderer.getInstance();
+		if(isMoveOrderingRequired){Arrays.sort(rawMoves, c);}
+		
+		return new Iterator<Move>(){
+			private int index = 0;
+			private final int size = rawMoves.length;
+			private Move current;
+			private Optional<Move> next = findNextLegalMove();
+			@Override
+			public boolean hasNext() {
+				return next.isPresent();
+			}
+			@Override
+			public Move next() {
+				current = next.get();
+				next = findNextLegalMove();
+				return current;
+			}
+			private Optional<Move> findNextLegalMove(){				
+				Move move = null;
+				while(index < size){
+					Move buf = rawMoves[index++].createMove();
+					buf.play();
+					boolean foundLegalMove = !playerChecks();
+					buf.undo();
+					if(foundLegalMove){move = buf;	break;}
+				}
+				return Optional.ofNullable(move);
+			}
+		};
+	}
+	@Override
 	public boolean theFirstPlayerHasTheMove() {
 		return color == WHITE;
 	}
+	@Override
+	public boolean isDrawForced() {
+		if(!hasSufficientMatingMaterial())return true;
+		if(halfMoveClock > 75)return true;
+		if(halfMoveClock == 75 && !playerIsMated())return true;
+		return false;
+	}
+	@Override
+	public boolean playerHasRightToDraw() {
+		if(fiftyMoveRuleCanBeApplied())return true;
+		if(hasRepeatedThreefold())return true;
+		
+		return false;
+	}
+	public boolean isQuiet(){
+		if(piecesAttackTheSquareOf(occupancies[color]))return false;
+		changeTheSide();
+		boolean buf = piecesAttackTheSquareOf(occupancies[color]);
+		changeTheSide();
+		return !buf;
+	}
 	public boolean isTerminated(){
-		return moves().size() == 0;
+		return isDrawForced() || !moveIterator(false).hasNext();
+	}
+	public boolean hasMoves(){
+		return moveIterator(false).hasNext();
+	}
+	public boolean playerIsMated(){
+		return playerIsInCheck() && !moveIterator(false).hasNext();
+	}
+	public boolean isStalemate(){
+		return !playerIsInCheck() && !moveIterator(false).hasNext();
 	}
 	public boolean playerIsInCheck(){
 		return piecesAttackTheSquareOf(army[color][KING]);
@@ -255,70 +324,95 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 		copy.remove(hash);
 		return copy.contains(hash);
 	}
+	public boolean hasSufficientMatingMaterial(){
+		long occupancy = occupancies[WHITE] | occupancies[BLACK];
+		int numOfPieces = Long.bitCount(occupancy);
+		
+		if(numOfPieces == 2)return false;	//King versus King draws.
+		
+		long piecesOtherThanKings = occupancy & ~(army[WHITE][KING] | army[BLACK][KING]);
+		
+		if(numOfPieces == 3){
+			int piece = pieceOn(piecesOtherThanKings);
+			if(piece == KNIGHT)return false;	//King and Knight versus King draws.
+			return true;
+		}
+		
+		long bishops = army[WHITE][BISHOP] | army[BLACK][BISHOP];
+		if(piecesOtherThanKings == bishops){	//No pieces but bishops and kings are present.
+			if(!LongBits.intersects(WHITE_SQUARES, bishops))return false;		//All the bishops are on black squares.
+			if(!LongBits.intersects(BLACK_SQUARES, bishops))return false;	
+		}
+		
+		return true;
+	}
 	public boolean canCastleOnKingside(){
 		if(theFirstPlayerHasTheMove())
 		return whiteCanCastleOnKingside &&
-				!Bits.intersects(occupancies[WHITE] | occupancies[BLACK], WHITE_KING_SIDE_CASTLING_WAY) &&
-				!piecesAttackTheSquareOf(INITIAL_WHITE_KING | (INITIAL_WHITE_KING >>> 1));
+				!LongBits.intersects(occupancies[WHITE] | occupancies[BLACK], WHITE_KING_SIDE_CASTLING_WAY) &&
+				!piecesAttackTheSquareOf(INITIAL_WHITE_KING | (INITIAL_WHITE_KING >>> 1) | (INITIAL_WHITE_KING >>> 2));
 		else
 			return blackCanCastleOnKingside &&
-					!Bits.intersects(occupancies[WHITE] | occupancies[BLACK], BLACK_KING_SIDE_CASLING_WAY) &&
-					!piecesAttackTheSquareOf(INITIAL_BLACK_KING | (INITIAL_BLACK_KING >>> 1));
+					!LongBits.intersects(occupancies[WHITE] | occupancies[BLACK], BLACK_KING_SIDE_CASLING_WAY) &&
+					!piecesAttackTheSquareOf(INITIAL_BLACK_KING | (INITIAL_BLACK_KING >>> 1) | (INITIAL_BLACK_KING >>> 2));
 	}
 	public boolean canCastleOnQueenside(){
 		if(theFirstPlayerHasTheMove())
 			return whiteCanCastleOnQueenside &&
-					!Bits.intersects(occupancies[WHITE] | occupancies[BLACK], WHITE_QUEEN_SIDE_CASTLING_WAY) &&
-					!piecesAttackTheSquareOf(INITIAL_WHITE_KING | (INITIAL_WHITE_KING << 1));
+					!LongBits.intersects(occupancies[WHITE] | occupancies[BLACK], WHITE_QUEEN_SIDE_CASTLING_WAY) &&
+					!piecesAttackTheSquareOf(INITIAL_WHITE_KING | (INITIAL_WHITE_KING << 1) | (INITIAL_WHITE_KING << 2));
 		else
 			return blackCanCastleOnQueenside &&
-					!Bits.intersects(occupancies[WHITE] | occupancies[BLACK], BLACK_QUEEN_SIDE_CASLING_WAY) &&
-					!piecesAttackTheSquareOf(INITIAL_BLACK_KING | (INITIAL_BLACK_KING << 1));
+					!LongBits.intersects(occupancies[WHITE] | occupancies[BLACK], BLACK_QUEEN_SIDE_CASLING_WAY) &&
+					!piecesAttackTheSquareOf(INITIAL_BLACK_KING | (INITIAL_BLACK_KING << 1) | (INITIAL_BLACK_KING << 2));
+	}
+	public int mobility(){
+		int result = 0;
+		for(int pieceType : PIECES){
+			long pieces = army[WHITE][pieceType];
+			for(long origin = Long.lowestOneBit(pieces); pieces != 0; pieces &= pieces - 1, origin = Long.lowestOneBit(pieces)){
+				long moves = PositionUtility.moves(pieceType, color, origin, enPassantSquare, occupancies[color], occupancies[oppositeColor], false, false);
+				result += Long.bitCount(moves);
+			}
+		}
+		for(int pieceType : PIECES){
+			long pieces = army[BLACK][pieceType];
+			for(long origin = Long.lowestOneBit(pieces); pieces != 0; pieces &= pieces - 1, origin = Long.lowestOneBit(pieces)){
+				long moves = PositionUtility.moves(pieceType, color, origin, enPassantSquare, occupancies[color], occupancies[oppositeColor], false, false);
+				result -= Long.bitCount(moves);
+			}
+		}
+		return result;
 	}
 	public long hash(){
 		return hash;
 	}
-	public FENManager createFENManager(){
+	@Override
+	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		long occupancy = occupancies[WHITE] | occupancies[BLACK];
-		for(int row = 7; row > -1; row--){
-			byte rank = (byte)((occupancy >>> row * 8) & 0xFF);
-			parseRank(sb, row, rank);
-			if(row != 0){
-				sb.append('/');
-			}
-		}
+		appendPiecePlacementString(sb);
 		sb.append(' ');
 		sb.append(theFirstPlayerHasTheMove()? 'w' : 'b');
 		sb.append(' ');
-		if(!whiteCanCastleOnKingside && !whiteCanCastleOnQueenside && !blackCanCastleOnKingside && !blackCanCastleOnQueenside){
-			sb.append('-');
-		}else{
-			if(whiteCanCastleOnKingside){
-				sb.append('K');
-			}if(whiteCanCastleOnQueenside){
-				sb.append('Q');
-			}if(blackCanCastleOnKingside){
-				sb.append('k');
-			}if(blackCanCastleOnQueenside){
-				sb.append('q');
-			}
-		}
+		appendCastlingAvailabilityString(sb);
 		sb.append(' ');
 		sb.append(enPassantSquare == 0? "-" : toSquareString(enPassantSquare));
 		sb.append(' ');
 		sb.append(String.valueOf(halfMoveClock));
 		sb.append(' ');
 		sb.append(fullMoveNumber());
-		return new FENManager(sb.toString());
+		return sb.toString();
 	}
-
+	public FENManager createFENManager(){
+		return new FENManager(toString());
+	}
+	
 
 
 	int pieceOn(long square){
 		for(int color : COLORS){
 			for(int piece : PIECES){
-				if(Bits.intersects(army[color][piece], square))return piece;
+				if(LongBits.intersects(army[color][piece], square))return piece;
 			}
 		}
 		return EMPTY;
@@ -441,7 +535,8 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 	
 	
 	
-	private final class StatusChange implements Undoable{
+	private static final class StatusChange implements Undoable{
+		private final Position position;
 		private final RawMove move;
 		private final long prevEnPassant;
 		private final boolean prevWhiteCanCastleOnKingside;
@@ -453,62 +548,63 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 
 		
 		
-		private StatusChange(RawMove move){
+		private StatusChange(Position position, RawMove move){
 			this.move = move;
-			prevEnPassant = enPassantSquare;
-			prevWhiteCanCastleOnKingside = whiteCanCastleOnKingside;
-			prevWhiteCanCastleOnQueenside = whiteCanCastleOnQueenside;
-			prevBlackCanCastleOnKingside = blackCanCastleOnKingside;
-			prevBlackCanCastleOnQueenside = blackCanCastleOnQueenside;
-			prevHalfMoveClock = halfMoveClock;
-			prevHash = hash;
+			this.position = position;
+			prevEnPassant = position.enPassantSquare;
+			prevWhiteCanCastleOnKingside = position.whiteCanCastleOnKingside;
+			prevWhiteCanCastleOnQueenside = position.whiteCanCastleOnQueenside;
+			prevBlackCanCastleOnKingside = position.blackCanCastleOnKingside;
+			prevBlackCanCastleOnQueenside = position.blackCanCastleOnQueenside;
+			prevHalfMoveClock = position.halfMoveClock;
+			prevHash = position.hash;
 		}
 		
 		
 		
 		@Override
 		public void apply() {
-			plyCount++;
+			position.plyCount++;
 			if(move.piece == PAWN || move.captures()){
-				halfMoveClock = 0;
+				position.halfMoveClock = 0;
 			}else{
-				halfMoveClock++;
+				position.halfMoveClock++;
 			}
 			long hashChanges = 0;
-			if(move.isInitialPawnPush()){
-				enPassantSquare = move.enPassantSquare();
-				hashChanges ^= getRandomLong(getFile(enPassantSquare));
+			if(move.isDoublePush()){
+				position.enPassantSquare = move.enPassantSquare();
+				hashChanges ^= getRandomLong(getFile(position.enPassantSquare));
 			}else{
-				enPassantSquare = 0;
+				position.enPassantSquare = 0;
 				if(move.disablesWhiteKingSideCastling()){
-					whiteCanCastleOnKingside = false;
+					position.whiteCanCastleOnKingside = false;
 					hashChanges ^= getRandomLong('K');
 				}
 				if(move.disablesWhiteQueenSideCastling()){
-					whiteCanCastleOnQueenside = false;
+					position.whiteCanCastleOnQueenside = false;
 					hashChanges ^= getRandomLong('Q');
 				}
 				if(move.disablesBlackKingSideCastling()){
-					blackCanCastleOnKingside = false;
+					position.blackCanCastleOnKingside = false;
 					hashChanges ^= getRandomLong('k');
 				}
 				if(move.disablesBlackQueenSideCastling()){
-					blackCanCastleOnQueenside = false;
+					position.blackCanCastleOnQueenside = false;
 					hashChanges ^= getRandomLong('q');
 				}
 			}
-			hash ^= hashChanges;
+			position.hash ^= hashChanges;
 		}
 		@Override
 		public void undo() {
-			plyCount--;
-			halfMoveClock = prevHalfMoveClock;
-			enPassantSquare = prevEnPassant;
-			whiteCanCastleOnKingside = prevWhiteCanCastleOnKingside;
-			whiteCanCastleOnQueenside = prevWhiteCanCastleOnQueenside;
-			blackCanCastleOnKingside = prevBlackCanCastleOnKingside;
-			blackCanCastleOnQueenside = prevBlackCanCastleOnQueenside;
-			hash = prevHash;
+			position.plyCount--;
+			position.halfMoveClock = prevHalfMoveClock;
+			position.enPassantSquare = prevEnPassant;
+			position.whiteCanCastleOnKingside = prevWhiteCanCastleOnKingside;
+			position.whiteCanCastleOnQueenside = prevWhiteCanCastleOnQueenside;
+			position.blackCanCastleOnKingside = prevBlackCanCastleOnKingside;
+			position.blackCanCastleOnQueenside = prevBlackCanCastleOnQueenside;
+			position.hash = prevHash;
 		}
 		@Override
 		public String toString() {
@@ -518,14 +614,14 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 		
 		
 		private final char getFile(long square){
-			if(Bits.intersects(square, A_FILE))return 'a';
-			if(Bits.intersects(square, B_FILE))return 'b';
-			if(Bits.intersects(square, C_FILE))return 'c';
-			if(Bits.intersects(square, D_FILE))return 'd';
-			if(Bits.intersects(square, E_FILE))return 'e';
-			if(Bits.intersects(square, F_FILE))return 'f';
-			if(Bits.intersects(square, G_FILE))return 'g';
-			if(Bits.intersects(square, H_FILE))return 'h';				
+			if(LongBits.intersects(square, A_FILE))return 'a';
+			if(LongBits.intersects(square, B_FILE))return 'b';
+			if(LongBits.intersects(square, C_FILE))return 'c';
+			if(LongBits.intersects(square, D_FILE))return 'd';
+			if(LongBits.intersects(square, E_FILE))return 'e';
+			if(LongBits.intersects(square, F_FILE))return 'f';
+			if(LongBits.intersects(square, G_FILE))return 'g';
+			if(LongBits.intersects(square, H_FILE))return 'h';				
 			throw new AssertionError();
 		}
 	}
@@ -539,7 +635,8 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 	
 	
 	
-	 final class RawMove{
+	 static final class RawMove{
+		private final Position position;
 		private final int piece;
 		private final long origin;
 		private final long destination;
@@ -548,7 +645,8 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 				
 
 		
-		RawMove(int piece, long origin, long destination, long enemy, int promotee){
+		private RawMove(Position position, int piece, long origin, long destination, long enemy, int promotee){
+			this.position = position;
 			this.piece = piece;
 			this.origin = origin;
 			this.destination = destination;
@@ -559,11 +657,11 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 		
 		
 		final boolean captures(){
-			return Bits.intersects(destination, enemy) || isEnPassant();
+			return LongBits.intersects(destination, enemy) || isEnPassant();
 		}
 		final boolean isEnPassant(){
 			if(piece != Position.PAWN)return false;
-			if(destination == enPassantSquare)return true;
+			if(destination == position.enPassantSquare)return true;
 			
 			return false;
 		}
@@ -572,7 +670,7 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 		}
 		final boolean castles(){
 			if(piece != KING)return false;
-			return !Bits.intersects(destination, PositionUtility.kingTerritory(origin));
+			return !LongBits.intersects(destination, PositionUtility.kingTerritory(origin));
 		}
 		final boolean castlesOnKingSide(){
 			return destination == (origin >>> 2) && castles();
@@ -580,39 +678,46 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 		final boolean castlesOnQueenSide(){
 			return destination == (origin << 2) && castles();
 		}
+		final boolean checks(){
+			long attacks = PositionUtility.moves(piece, position.color, destination, position.enPassantSquare, position.occupancies[position.color], position.occupancies[position.oppositeColor], position.canCastleOnKingside(), position.canCastleOnQueenside());
+			for(long attack = Long.lowestOneBit(attacks); attacks != 0; attacks &= attacks - 1, attack = Long.lowestOneBit(attacks)){
+				if(attack == position.army[position.oppositeColor][KING])return true;
+			}
+			return false;
+		}
 		final long enPassantSquare(){
 			long result = ((origin << 8) | (origin >>> 8)) & ((destination << 8) | (destination >> 8));
 			return result;
 		}
-		final boolean isInitialPawnPush(){
+		final boolean isDoublePush(){
 			if(piece != Position.PAWN)return false;
-			return !Bits.intersects(destination, PositionUtility.kingTerritory(origin));
+			return !LongBits.intersects(destination, PositionUtility.kingTerritory(origin));
 		}
 		final boolean disablesWhiteKingSideCastling(){
-			if(!whiteCanCastleOnKingside)return false;
-			if(color == WHITE){
+			if(!position.whiteCanCastleOnKingside)return false;
+			if(position.color == WHITE){
 				if(piece == KING)return true;
 				return origin == INITIAL_WHITE_KING_SIDE_ROOK;
 			}else return destination == INITIAL_WHITE_KING_SIDE_ROOK;
 		}
 		final boolean disablesWhiteQueenSideCastling(){
-			if(!whiteCanCastleOnQueenside)return false;
-			if(color == WHITE){
+			if(!position.whiteCanCastleOnQueenside)return false;
+			if(position.color == WHITE){
 				if(piece == KING)return true;
 				return origin == INITIAL_WHITE_QUEEN_SIDE_ROOK;
 			}else return destination == INITIAL_WHITE_QUEEN_SIDE_ROOK;
 		}
 		final boolean disablesBlackKingSideCastling(){
-			if(!blackCanCastleOnKingside)return false;
-			if(color == WHITE)return destination == INITIAL_BLACK_KING_SIDE_ROOK;
+			if(!position.blackCanCastleOnKingside)return false;
+			if(position.color == WHITE)return destination == INITIAL_BLACK_KING_SIDE_ROOK;
 			else{
 				if(piece == KING)return true;
 				return origin == INITIAL_BLACK_KING_SIDE_ROOK;
 			}
 		}
 		final boolean disablesBlackQueenSideCastling(){
-			if(!blackCanCastleOnQueenside)return false;
-			if(color == WHITE)return destination == INITIAL_BLACK_QUEEN_SIDE_ROOK;
+			if(!position.blackCanCastleOnQueenside)return false;
+			if(position.color == WHITE)return destination == INITIAL_BLACK_QUEEN_SIDE_ROOK;
 			else{
 				if(piece == KING)return true;
 				return origin == INITIAL_BLACK_QUEEN_SIDE_ROOK;
@@ -633,75 +738,85 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 			if(!captures())return 0;
 			if(isEnPassant())return 1;
 			
-			switch(pieceOn(destination)){
-			case PAWN:return 1;
-			case KNIGHT:return 3;
-			case BISHOP:return 3;
-			case ROOK:return 5;
-			case QUEEN:return 9;
-			case KING:return 100;
+			int result = 0;
+			switch(position.pieceOn(destination)){
+			case PAWN:result += 1;		break;
+			case KNIGHT:result += 3;	break;
+			case BISHOP:result += 3;	break;
+			case ROOK:result += 5;		break;
+			case QUEEN:result += 9;		break;
 			default:throw new AssertionError();
 			}
+			if(promotes()){
+				switch(promotee){
+				case KNIGHT:result += 2;	break;
+				case BISHOP:result += 2;	break;
+				case ROOK:result += 4;		break;
+				case QUEEN:result += 8;		break;
+				default:throw new AssertionError();
+				}
+			}
+			return result;
 		}
 		final Move createMove(){
 			switch(piece){
 			case PAWN:{
 				if(isEnPassant()){
-					long pawnPassing = ((enPassantSquare << 8) | (enPassantSquare >>> 8)) & enemy;
+					long pawnPassing = ((position.enPassantSquare << 8) | (position.enPassantSquare >>> 8)) & enemy;
 					
-					return new Move(new StatusChange(this)
-							.andThen(elimination(PAWN, pawnPassing))
-							.andThen(transfer(PAWN, origin, destination))
-							.andThen(changeOfTheSide())
-							.andThen(historyUpdate()));
+					return new Move(new StatusChange(position, this)
+							.andThen(position.elimination(PAWN, pawnPassing))
+							.andThen(position.transfer(PAWN, origin, destination))
+							.andThen(position.changeOfTheSide())
+							.andThen(position.historyUpdate()));
 				}
-				return new Move(new StatusChange(this)
-						.ifTrueThen(captures(), elimination(pieceOn(destination), destination))
-						.andThen(transfer(PAWN, origin, destination))
-						.ifTrueThen(promotes(), promotion(promotee, destination))
-						.andThen(changeOfTheSide())
-						.andThen(historyUpdate()));
+				return new Move(new StatusChange(position, this)
+						.ifTrueThen(captures(), position.elimination(position.pieceOn(destination), destination))
+						.andThen(position.transfer(PAWN, origin, destination))
+						.ifTrueThen(promotes(), position.promotion(promotee, destination))
+						.andThen(position.changeOfTheSide())
+						.andThen(position.historyUpdate()));
 			}
 			case KING:{
 				if(castlesOnKingSide()){
 					long rookOrigin = destination >>> 1;
 					long rookDestination = destination << 1;
 					
-					return new Move(new StatusChange(this)
-							.andThen(transfer(KING, origin, destination))
-							.andThen(transfer(ROOK, rookOrigin, rookDestination))
-							.andThen(changeOfTheSide())
-							.andThen(historyUpdate()));
+					return new Move(new StatusChange(position, this)
+							.andThen(position.transfer(KING, origin, destination))
+							.andThen(position.transfer(ROOK, rookOrigin, rookDestination))
+							.andThen(position.changeOfTheSide())
+							.andThen(position.historyUpdate()));
 				}else if(castlesOnQueenSide()){
 					long rookOrigin = destination << 2;
 					long rookDestination = destination >>> 1;
 					
-					return new Move(new StatusChange(this)
-							.andThen(transfer(KING, origin, destination))
-							.andThen(transfer(ROOK, rookOrigin, rookDestination))
-							.andThen(changeOfTheSide())
-							.andThen(historyUpdate()));
+					return new Move(new StatusChange(position, this)
+							.andThen(position.transfer(KING, origin, destination))
+							.andThen(position.transfer(ROOK, rookOrigin, rookDestination))
+							.andThen(position.changeOfTheSide())
+							.andThen(position.historyUpdate()));
 				}
 				
-				return new Move(new StatusChange(this)
-						.ifTrueThen(captures(), elimination(pieceOn(destination), destination))
-						.andThen(transfer(KING, origin, destination))
-						.andThen(changeOfTheSide())
-						.andThen(historyUpdate()));
+				return new Move(new StatusChange(position, this)
+						.ifTrueThen(captures(), position.elimination(position.pieceOn(destination), destination))
+						.andThen(position.transfer(KING, origin, destination))
+						.andThen(position.changeOfTheSide())
+						.andThen(position.historyUpdate()));
 			}
 			case KNIGHT:
 			case BISHOP:
 			case ROOK:
 			case QUEEN:
 				
-				return new Move(new StatusChange(this)
-						.ifTrueThen(captures(), elimination(pieceOn(destination), destination))
-						.andThen(transfer(piece, origin, destination))
-						.andThen(changeOfTheSide())
-						.andThen(historyUpdate()));
+				return new Move(new StatusChange(position, this)
+						.ifTrueThen(captures(), position.elimination(position.pieceOn(destination), destination))
+						.andThen(position.transfer(piece, origin, destination))
+						.andThen(position.changeOfTheSide())
+						.andThen(position.historyUpdate()));
 			}
 			throw new AssertionError();
-		}		
+		}
 	}
 	
 	
@@ -719,28 +834,29 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 		oppositeColor = tmp;
 	}
 	private void initializeHash(){
-		for(long square : Bits.of(Long.MAX_VALUE)){
+		for(long square : LongBits.of(Long.MAX_VALUE)){
 			int piece = pieceOn(square);
 			if(piece != EMPTY){
-				int color = Bits.intersects(occupancies[WHITE], square)? WHITE : BLACK; 
+				int color = LongBits.intersects(occupancies[WHITE], square)? WHITE : BLACK; 
 				hash ^= getRandomLong(color,piece, square);
 			}
 		}
 	}
 	private RawMove[] generateRawMoves(){
-		RawMove[] buf = new RawMove[200];
+		RawMove[] buf = new RawMove[218];
 		
 		int index = 0;
 		for(int piece : PIECES){
-			for(long origin : Bits.of(army[color][piece])){
+			long pieces = army[color][piece];
+			for(long origin = Long.lowestOneBit(pieces); origin != 0; pieces &= pieces - 1, origin = Long.lowestOneBit(pieces)){
 				long moves = PositionUtility.moves(piece, color, origin, enPassantSquare, occupancies[color], occupancies[oppositeColor], canCastleOnKingside(), canCastleOnQueenside());
-				for(long destination : Bits.of(moves)){
+				for(long destination = Long.lowestOneBit(moves); moves != 0; moves &= moves - 1, destination = Long.lowestOneBit(moves)){
 					for(int promotee : PROMOTEES){
-						if(piece != PAWN | !Bits.intersects(destination, BACK_RANKS)){
-							buf[index++] = new RawMove(piece, origin, destination, occupancies[oppositeColor], EMPTY);
+						if(piece != PAWN | !LongBits.intersects(destination, BACK_RANKS)){
+							buf[index++] = new RawMove(this, piece, origin, destination, occupancies[oppositeColor], EMPTY);
 							break;
 						}else{
-							buf[index++]= new RawMove(PAWN, origin, destination, occupancies[oppositeColor], promotee);
+							buf[index++]= new RawMove(this, PAWN, origin, destination, occupancies[oppositeColor], promotee);
 						}
 					}
 				}
@@ -751,88 +867,83 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 		return result;
 	}
 	private boolean piecesAttackTheSquareOf(long square){
-		if(queensAttackTheSquareOf(square))return true;
-		if(rooksAttackTheSquareOf(square))return true;
 		if(knightsAttackTheSquareOf(square))return true;
 		if(bishopsAttackTheSquareOf(square))return true;
+		if(rooksAttackTheSquareOf(square))return true;
 		if(pawnsAttackTheSquareOf(square))return true;
-		if(Bits.intersects(PositionUtility.kingTerritory(army[oppositeColor][KING]), square))return true;
+		if(queensAttackTheSquareOf(square))return true;
+		if(LongBits.intersects(PositionUtility.kingTerritory(army[oppositeColor][KING]), square))return true;
 
 		return false;
 	}
 	private boolean pawnsAttackTheSquareOf(long square) {
 		long squares = army[oppositeColor][PAWN];
 		for(long pawn = Long.lowestOneBit(squares); squares != 0; squares &= squares - 1, pawn = Long.lowestOneBit(squares)){
-			if(Bits.intersects(PositionUtility.pawnTerritory(oppositeColor, pawn), square))return true;
+			if(LongBits.intersects(PositionUtility.pawnTerritory(oppositeColor, pawn), square))return true;
 		}
 		return false;
 	}
 	private boolean knightsAttackTheSquareOf(long square) {
 		long squares = army[oppositeColor][KNIGHT];
 		for(long knight = Long.lowestOneBit(squares); squares != 0; squares &= squares - 1, knight = Long.lowestOneBit(squares)){
-			if(Bits.intersects(PositionUtility.knightTerritory(knight), square))return true;
+			if(LongBits.intersects(PositionUtility.knightTerritory(knight), square))return true;
 		}
 		return false;
 	}
 	private boolean bishopsAttackTheSquareOf(long square) {
 		long squares = army[oppositeColor][BISHOP];
 		for(long bishop = Long.lowestOneBit(squares); squares != 0; squares &= squares - 1, bishop = Long.lowestOneBit(squares)){
-			if(Bits.intersects(PositionUtility.bishopMoves(bishop, occupancies[oppositeColor], occupancies[color]), square))return true;
+			if(LongBits.intersects(PositionUtility.bishopMoves(bishop, occupancies[oppositeColor], occupancies[color]), square))return true;
 		}
 		return false;
 	}
 	private boolean rooksAttackTheSquareOf(long square) {
 		long squares = army[oppositeColor][ROOK];
 		for(long rook = Long.lowestOneBit(squares); squares != 0; squares &= squares - 1, rook = Long.lowestOneBit(squares)){
-			if(Bits.intersects(PositionUtility.rookMoves(rook, occupancies[oppositeColor], occupancies[color]), square))return true;
+			if(LongBits.intersects(PositionUtility.rookMoves(rook, occupancies[oppositeColor], occupancies[color]), square))return true;
 		}
 		return false;
 	}
 	private boolean queensAttackTheSquareOf(long square) {
 		long squares = army[oppositeColor][QUEEN];
 		for(long queen = Long.lowestOneBit(squares); squares != 0; squares &= squares - 1, queen = Long.lowestOneBit(squares)){
-			if(Bits.intersects(PositionUtility.queenMoves(queen, occupancies[oppositeColor], occupancies[color]), square))return true;
+			if(LongBits.intersects(PositionUtility.queenMoves(queen, occupancies[oppositeColor], occupancies[color]), square))return true;
 		}
 		return false;
 	}
-	private final void parseRank(StringBuilder sb, int row, byte rank){
-		BitSequence bs = BitSequence.of(rank);
-		int[] numbers = bs.successiveBitCounts();
-		int sum = 0;
-		for(int i : Range.of(numbers.length)){
-			if(i % 2 == (bs.firstBitIsSet() ? 0 : 1)){
-				for(int j : Range.of(numbers[i])){
-					int column = sum + j;
-					int index = row * 8 + 7 - column;
-					if(Bits.intersects(occupancies[WHITE], 1L << index)){
-						switch(pieceOn(1L << index)){
-						case PAWN:sb.append('P'); break;
-						case KNIGHT:sb.append('N'); break;
-						case BISHOP:sb.append('B'); break;
-						case ROOK:sb.append('R'); break;
-						case QUEEN:sb.append('Q'); break;
-						case KING:sb.append('K'); break;
-						default: throw new AssertionError();
-						}
-					}else if(Bits.intersects(occupancies[BLACK], 1L << index)){
-						switch(pieceOn(1L << index)){
-						case PAWN:sb.append('p'); break;
-						case KNIGHT:sb.append('n'); break;
-						case BISHOP:sb.append('b'); break;
-						case ROOK:sb.append('r'); break;
-						case QUEEN:sb.append('q'); break;
-						case KING:sb.append('k'); break;
-						default: throw new AssertionError();
-						}
-					}
-				}
-			}else{
-				sb.append(numbers[i]);
+	private void appendPiecePlacementString(StringBuilder sb) {
+		long occupancy = occupancies[WHITE] | occupancies[BLACK];
+		for(int row = 7; row > -1; row--){
+			long rank = occupancy & (0xFFL << row * 8);
+			int prevIndex = 8;
+			for(Iterator<Long> iterator = LongBits.of(rank).highestToLowest(); iterator.hasNext();){
+				long bit = iterator.next();
+				int index = Long.numberOfTrailingZeros(bit) - row * 8;
+				int numberOfSuccessiveEmptySquares = prevIndex - index - 1;
+				if(numberOfSuccessiveEmptySquares != 0){sb.append(numberOfSuccessiveEmptySquares);}
+				sb.append(getSymbol(LongBits.intersects(occupancies[WHITE], bit)? WHITE : BLACK, pieceOn(bit)));
+				prevIndex = index;
 			}
-			sum += numbers[i];
+			if(prevIndex != 0){sb.append(prevIndex);}
+			if(row != 0){sb.append('/');}
 		}
 	}
-	
+	private void appendCastlingAvailabilityString(StringBuilder sb) {
+		if(!whiteCanCastleOnKingside && !whiteCanCastleOnQueenside && !blackCanCastleOnKingside && !blackCanCastleOnQueenside){
+			sb.append('-');
+		}else{
+			if(whiteCanCastleOnKingside){
+				sb.append('K');
+			}if(whiteCanCastleOnQueenside){
+				sb.append('Q');
+			}if(blackCanCastleOnKingside){
+				sb.append('k');
+			}if(blackCanCastleOnQueenside){
+				sb.append('q');
+			}
+		}
+	}
+
 	
 	
 	static final long getRandomLong(int color, int piece, long square){
@@ -870,7 +981,7 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 	}
 	static final String toSquareString(long square){
 		StringBuilder sb = new StringBuilder();
-		for(long bit : Bits.of(square)){
+		for(long bit : LongBits.of(square)){
 			int index = Long.bitCount(bit - 1);
 			int column = index & 0x7;
 			int row = index >>> 3;
@@ -878,5 +989,21 @@ public final class Position implements jp.gr.java_conf.syanidar.algorithm.mosqui
 			sb.append((char)('1' + row));
 		}
 		return sb.toString();
+	}
+	
+	
+	
+	private static final char getSymbol(int color, int piece){
+		char result = 0;
+		switch(piece){
+		case PAWN:result = 'P'; break;
+		case KNIGHT:result = 'N'; break;
+		case BISHOP:result = 'B'; break;
+		case ROOK:result = 'R'; break;
+		case QUEEN:result = 'Q'; break;
+		case KING:result = 'K'; break;
+		default:throw new AssertionError();
+		}
+		return color == BLACK? Character.toLowerCase(result) : result;
 	}
 }

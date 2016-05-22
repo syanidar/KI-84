@@ -15,7 +15,7 @@ public class HamsterEvaluator implements Evaluator<ChessPosition, CentiPawn> {
 	private HamsterEvaluator(){}
 	
 	@Override
-	public CentiPawn evaluate(ChessPosition p) {		
+	public CentiPawn evaluate(ChessPosition p, int depth) {		
 		ToIntFunction<Square> func = s -> {
 			switch(s.piece().get().toEnum()){
 			case PAWN:
@@ -67,11 +67,6 @@ public class HamsterEvaluator implements Evaluator<ChessPosition, CentiPawn> {
 	@Override
 	public CentiPawn upperBound(){
 		return new CentiPawn(Integer.MAX_VALUE / 2);
-	}
-	@Override
-	public CentiPawn evaluateIfTerminated(ChessPosition p, int depth){
-		if(p.isInCheck())return p.theFirstPlayerHasTheMove() ? new CentiPawn(-100000 - depth) : new CentiPawn(100000 + depth);
-		return new CentiPawn(0);
 	}
 	public static final HamsterEvaluator getInstance(){
 		return INSTANCE;

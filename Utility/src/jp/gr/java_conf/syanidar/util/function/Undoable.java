@@ -17,7 +17,7 @@ public interface Undoable extends Runnable{
 			}
 			@Override
 			public String toString(){
-				return self.toString() + u.toString();
+				return new StringBuilder(self.toString()).append(u.toString()).toString();
 			}
 		};
 	}

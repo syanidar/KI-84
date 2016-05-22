@@ -1,4 +1,4 @@
-package jp.gr.java_conf.syanidar.chess.hamster;
+package jp.gr.java_conf.syanidar.games.chess.hamster;
 
 import java.awt.Toolkit;
 import java.io.BufferedReader;
@@ -12,7 +12,7 @@ import jp.gr.java_conf.syanidar.algorithm.mosquito.game.MoveSelector;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.game.NoMoveHandler;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.game.Player;
 import jp.gr.java_conf.syanidar.algorithm.mosquito.game.Viewer;
-import jp.gr.java_conf.syanidar.algorithm.mosquito.minimax.MinimaxResult;
+import jp.gr.java_conf.syanidar.algorithm.mosquito.minimax.AlphaBetaResult;
 import jp.gr.java_conf.syanidar.chess.hamster.game.CentiPawn;
 import jp.gr.java_conf.syanidar.chess.hamster.game.ChessPosition;
 import jp.gr.java_conf.syanidar.chess.hamster.game.ChessUtility;
@@ -23,9 +23,9 @@ public class Test {
 	public static final void main(String...strings){
 		
 		ChessPosition position = new ChessPosition();
-		Player<ChessPosition, MinimaxResult<CentiPawn>> white = strings[0].equals("AI") ? ChessUtility.ai(0, 3, p -> p.isQuiet()) : ChessUtility.human(new ChessMoveSelector());
-		Player<ChessPosition, MinimaxResult<CentiPawn>> black = strings[1].equals("AI") ? ChessUtility.ai(0, 3, p -> p.isQuiet()) : ChessUtility.human(new ChessMoveSelector());
-		Game<ChessPosition, MinimaxResult<CentiPawn>> game = new Game<>(position, white, black, new ChessViewer());
+		Player<ChessPosition, AlphaBetaResult<CentiPawn>> white = strings[0].equals("AI") ? ChessUtility.ai(0, 3, p -> p.isQuiet()) : ChessUtility.human(new ChessMoveSelector());
+		Player<ChessPosition, AlphaBetaResult<CentiPawn>> black = strings[1].equals("AI") ? ChessUtility.ai(0, 3, p -> p.isQuiet()) : ChessUtility.human(new ChessMoveSelector());
+		Game<ChessPosition, AlphaBetaResult<CentiPawn>> game = new Game<>(position, white, black, new ChessViewer());
 		ChessNoMoveHandler ch = new ChessNoMoveHandler();
 		
 		while(!ch.terminated){
@@ -61,13 +61,13 @@ public class Test {
 			return input;
 		}
 	}
-	private static class ChessViewer implements Viewer<ChessPosition, MinimaxResult<CentiPawn>>{
+	private static class ChessViewer implements Viewer<ChessPosition, AlphaBetaResult<CentiPawn>>{
 		@Override
 		public void updateBoard(ChessPosition position) {
 			System.out.println(position);
 		}
 		@Override
-		public void updateResults(Map<String, MinimaxResult<CentiPawn>> results) {				
+		public void updateResults(Map<String, AlphaBetaResult<CentiPawn>> results) {				
 			if(!results.isEmpty()){
 				System.out.println(MapUtility.sortByValues(results));
 			}
